@@ -75,9 +75,8 @@ describe("NodeJS CRUD Tests", function() {
       assert(queriedSprocs.length > 0, "number of sprocs for the query should be > 0");
 
       // replace sproc
-      sproc.body = function() {
-        const x = 20;
-      };
+      // prettier-ignore
+      sproc.body = function() { const x = 20; };
       const { result: replacedSproc } = await container.storedProcedure(sproc.id).replace(sproc);
 
       assert.equal(replacedSproc.id, sproc.id);

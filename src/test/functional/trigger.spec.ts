@@ -85,9 +85,8 @@ describe("NodeJS CRUD Tests", function() {
       assert(results.length > 0, "number of results for the query should be > 0");
 
       // replace trigger
-      trigger.body = function() {
-        const x = 20;
-      };
+      // prettier-ignore
+      trigger.body = function() { const x = 20; };
       const { result: replacedTrigger } = await container.trigger(trigger.id).replace(trigger);
 
       assert.equal(replacedTrigger.id, trigger.id);
@@ -154,9 +153,8 @@ describe("NodeJS CRUD Tests", function() {
       assert(results.length > 0, "number of results for the query should be > 0");
 
       // replace trigger
-      trigger.body = function() {
-        const x = 20;
-      };
+      // prettier-ignore
+      trigger.body = function() { const x = 20; };
       const { result: replacedTrigger } = await container.triggers.upsert(trigger);
 
       assert.equal(replacedTrigger.id, trigger.id);
