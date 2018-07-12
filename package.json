@@ -21,8 +21,8 @@
   "scripts": {
     "clean": "rimraf lib",
     "lint": "tslint --project tsconfig.json",
-    "format": "prettier --write \"src/**/*.ts\"",
-    "check-format": "prettier-check \"src/**/*.ts\"",
+    "format": "prettier --write --loglevel debug \"src/**/*.ts\"",
+    "check-format": "prettier --list-different --loglevel debug \"src/**/*.ts\"",
     "compile": "echo Using TypeScript && tsc --version && tsc --pretty",
     "docs": "typedoc --mode file --out ./lib/docs ./src",
     "pack": "webpack",
