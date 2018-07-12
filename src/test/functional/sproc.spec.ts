@@ -108,10 +108,8 @@ describe("NodeJS CRUD Tests", function() {
       const beforeCreateSprocsCount = sprocs.length;
       const sprocDefinition: StoredProcedureDefinition = {
         id: "sample sproc",
-        // tslint:disable-next-line:object-literal-shorthand
-        body: function() {
-          const x = 10;
-        }
+        // prettier-ignore
+        body: function() { const x = 10; } // tslint:disable-line:object-literal-shorthand
       };
 
       const { result: sproc } = await container.storedProcedures.upsert(sprocDefinition);
