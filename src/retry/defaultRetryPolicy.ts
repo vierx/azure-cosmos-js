@@ -47,14 +47,14 @@ export class DefaultRetryPolicy {
         this.WindowsNameTooLong,
         this.WindowsHostIsDown,
         this.WindowsNoRouteTohost,
-        this.LinuxConnectionReset,
+        this.LinuxConnectionReset
     ];
 
     /**
      * @constructor ResourceThrottleRetryPolicy
      * @param {string} operationType - The type of operation being performed.
      */
-    constructor(private operationType: string) { }
+    constructor(private operationType: string) {}
     /**
      * Determines whether the request should be retried or not.
      * @param {object} err - Error returned by the request.
@@ -63,8 +63,10 @@ export class DefaultRetryPolicy {
      */
     public async shouldRetry(err: ErrorResponse): Promise<boolean> {
         if (err) {
-            if ((this.currentRetryAttemptCount < this.maxRetryAttemptCount) &&
-                this.needs_retry(err.code)) {
+            if (
+                this.currentRetryAttemptCount < this.maxRetryAttemptCount &&
+                this.needs_retry(err.code)
+            ) {
                 this.currentRetryAttemptCount++;
                 return true;
             }
@@ -73,8 +75,10 @@ export class DefaultRetryPolicy {
     }
 
     private needs_retry(code: number | string) {
-        if ((this.operationType === "read" || this.operationType === "query") &&
-            (this.CONNECTION_ERROR_CODES.indexOf(code) !== -1)) {
+        if (
+            (this.operationType === "read" || this.operationType === "query") &&
+            this.CONNECTION_ERROR_CODES.indexOf(code) !== -1
+        ) {
             return true;
         } else {
             return false;

@@ -10,7 +10,7 @@ export type FetchFunctionCallback = (options: any) => Promise<Response<any>>;
 enum STATES {
     start = "start",
     inProgress = "inProgress",
-    ended = "ended",
+    ended = "ended"
 }
 
 export class DefaultQueryExecutionContext implements IExecutionContext {
@@ -39,13 +39,17 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
         documentclient: DocumentClient,
         query: string | SqlQuerySpec,
         options: any,
-        fetchFunctions: FetchFunctionCallback | FetchFunctionCallback[]) { // TODO: any options
+        fetchFunctions: FetchFunctionCallback | FetchFunctionCallback[]
+    ) {
+        // TODO: any options
         this.documentclient = documentclient;
         this.query = query;
         this.resources = [];
         this.currentIndex = 0;
         this.currentPartitionIndex = 0;
-        this.fetchFunctions = (Array.isArray(fetchFunctions)) ? fetchFunctions : [fetchFunctions];
+        this.fetchFunctions = Array.isArray(fetchFunctions)
+            ? fetchFunctions
+            : [fetchFunctions];
         this.options = options || {};
         this.continuation = this.options.continuation || null;
         this.state = DefaultQueryExecutionContext.STATES.start;
@@ -69,7 +73,10 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
      */
     public async current(): Promise<Response<any>> {
         if (this.currentIndex < this.resources.length) {
-            return { result: this.resources[this.currentIndex], headers: undefined };
+            return {
+                result: this.resources[this.currentIndex],
+                headers: undefined
+            };
         }
 
         if (this._canFetchMore()) {
@@ -81,7 +88,10 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
 
             this.resources = resources;
             if (this.resources.length === 0) {
-                if (!this.continuation && this.currentPartitionIndex >= this.fetchFunctions.length) {
+                if (
+                    !this.continuation &&
+                    this.currentPartitionIndex >= this.fetchFunctions.length
+                ) {
                     this.state = DefaultQueryExecutionContext.STATES.ended;
                     return { result: undefined, headers };
                 } else {
@@ -103,10 +113,12 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
      * @returns {Boolean} true if there is other elements to process in the DefaultQueryExecutionContext.
      */
     public hasMoreResults() {
-        return this.state === DefaultQueryExecutionContext.STATES.start
-            || this.continuation !== undefined
-            || this.currentIndex < this.resources.length
-            || this.currentPartitionIndex < this.fetchFunctions.length;
+        return (
+            this.state === DefaultQueryExecutionContext.STATES.start ||
+            this.continuation !== undefined ||
+            this.currentIndex < this.resources.length ||
+            this.currentPartitionIndex < this.fetchFunctions.length
+        );
     }
 
     /**
@@ -153,8 +165,11 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
 
         // deserializing query metrics so that we aren't working with delimited strings in the rest of the code base
         if (Constants.HttpHeaders.QueryMetrics in responseHeaders) {
-            const delimitedString = responseHeaders[Constants.HttpHeaders.QueryMetrics];
-            let queryMetrics = QueryMetrics.createFromDelimitedString(delimitedString);
+            const delimitedString =
+                responseHeaders[Constants.HttpHeaders.QueryMetrics];
+            let queryMetrics = QueryMetrics.createFromDelimitedString(
+                delimitedString
+            );
 
             // Add the request charge to the query metrics so that we can have per partition request charge.
             if (Constants.HttpHeaders.RequestCharge in responseHeaders) {
@@ -171,23 +186,31 @@ export class DefaultQueryExecutionContext implements IExecutionContext {
                     queryMetrics.vmExecutionTime,
                     queryMetrics.runtimeExecutionTimes,
                     queryMetrics.documentWriteTime,
-                    new ClientSideMetrics(responseHeaders[Constants.HttpHeaders.RequestCharge]));
+                    new ClientSideMetrics(
+                        responseHeaders[Constants.HttpHeaders.RequestCharge]
+                    )
+                );
             }
 
             // Wraping query metrics in a object where the key is '0' just so single partition
             // and partition queries have the same response schema
             responseHeaders[Constants.HttpHeaders.QueryMetrics] = {};
-            responseHeaders[Constants.HttpHeaders.QueryMetrics]["0"] = queryMetrics;
+            responseHeaders[Constants.HttpHeaders.QueryMetrics][
+                "0"
+            ] = queryMetrics;
         }
 
         return { result: resources, headers: responseHeaders };
     }
 
     private _canFetchMore() {
-        const res = (this.state === DefaultQueryExecutionContext.STATES.start
-            || (this.continuation && this.state === DefaultQueryExecutionContext.STATES.inProgress)
-            || (this.currentPartitionIndex < this.fetchFunctions.length
-                && this.state === DefaultQueryExecutionContext.STATES.inProgress));
+        const res =
+            this.state === DefaultQueryExecutionContext.STATES.start ||
+            (this.continuation &&
+                this.state ===
+                    DefaultQueryExecutionContext.STATES.inProgress) ||
+            (this.currentPartitionIndex < this.fetchFunctions.length &&
+                this.state === DefaultQueryExecutionContext.STATES.inProgress);
         return res;
     }
 }

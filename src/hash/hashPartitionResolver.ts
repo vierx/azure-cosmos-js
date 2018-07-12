@@ -19,13 +19,22 @@ export class HashPartitionResolver {
      * function to extract the partition key from an object.
      */
     constructor(
-        partitionKeyExtractor: PartitionKeyExtractor, collectionLinks: string[], options?: any) { // TODO: options
-        HashPartitionResolver._throwIfInvalidPartitionKeyExtractor(partitionKeyExtractor);
+        partitionKeyExtractor: PartitionKeyExtractor,
+        collectionLinks: string[],
+        options?: any
+    ) {
+        // TODO: options
+        HashPartitionResolver._throwIfInvalidPartitionKeyExtractor(
+            partitionKeyExtractor
+        );
         HashPartitionResolver._throwIfInvalidCollectionLinks(collectionLinks);
         this.partitionKeyExtractor = partitionKeyExtractor;
 
         options = options || {};
-        this.consistentHashRing = new ConsistentHashRing(collectionLinks, options);
+        this.consistentHashRing = new ConsistentHashRing(
+            collectionLinks,
+            options
+        );
         this.collectionLinks = collectionLinks;
     }
     /**
@@ -36,7 +45,7 @@ export class HashPartitionResolver {
      * @returns {object}
      */
     public getPartitionKey(document: Document) {
-        return (typeof this.partitionKeyExtractor === "string")
+        return typeof this.partitionKeyExtractor === "string"
             ? document[this.partitionKeyExtractor]
             : this.partitionKeyExtractor(document);
     }
@@ -71,13 +80,25 @@ export class HashPartitionResolver {
     }
 
     // TODO: chrande made this public to satisfy a test. Shouldn't be testing private apis
-    public static _throwIfInvalidPartitionKeyExtractor(partitionKeyExtractor: PartitionKeyExtractor) {
-        if (partitionKeyExtractor === undefined || partitionKeyExtractor === null) {
-            throw new Error("partitionKeyExtractor cannot be null or undefined");
+    public static _throwIfInvalidPartitionKeyExtractor(
+        partitionKeyExtractor: PartitionKeyExtractor
+    ) {
+        if (
+            partitionKeyExtractor === undefined ||
+            partitionKeyExtractor === null
+        ) {
+            throw new Error(
+                "partitionKeyExtractor cannot be null or undefined"
+            );
         }
 
-        if (typeof partitionKeyExtractor !== "string" && typeof partitionKeyExtractor !== "function") {
-            throw new Error("partitionKeyExtractor must be either a 'string' or a 'function'");
+        if (
+            typeof partitionKeyExtractor !== "string" &&
+            typeof partitionKeyExtractor !== "function"
+        ) {
+            throw new Error(
+                "partitionKeyExtractor must be either a 'string' or a 'function'"
+            );
         }
     }
 
@@ -96,8 +117,14 @@ export class HashPartitionResolver {
             throw new Error("collectionLinks must be an array.");
         }
 
-        if (collectionLinks.some((collectionLink) => !Base._isValidCollectionLink(collectionLink))) {
-            throw new Error("All elements of collectionLinks must be collection links.");
+        if (
+            collectionLinks.some(
+                collectionLink => !Base._isValidCollectionLink(collectionLink)
+            )
+        ) {
+            throw new Error(
+                "All elements of collectionLinks must be collection links."
+            );
         }
     }
 }

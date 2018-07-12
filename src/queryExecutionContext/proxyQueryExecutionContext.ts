@@ -6,7 +6,7 @@ import {
     IHeaders,
     PartitionedQueryExecutionContextInfo,
     PipelinedQueryExecutionContext,
-    SqlQuerySpec,
+    SqlQuerySpec
 } from ".";
 import { StatusCodes, SubStatusCodes } from "../common";
 import { DocumentClient } from "../documentclient";
@@ -31,15 +31,20 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         private query: SqlQuerySpec | string,
         private options: any, // TODO: any options
         private fetchFunctions: FetchFunctionCallback | FetchFunctionCallback[],
-        private resourceLink: string | string[]) {
+        private resourceLink: string | string[]
+    ) {
         this.documentclient = documentclient;
         this.query = query;
         this.fetchFunctions = fetchFunctions;
         // clone options
         this.options = JSON.parse(JSON.stringify(options || {}));
         this.resourceLink = resourceLink;
-        this.queryExecutionContext =
-            new DefaultQueryExecutionContext(this.documentclient, this.query, this.options, this.fetchFunctions);
+        this.queryExecutionContext = new DefaultQueryExecutionContext(
+            this.documentclient,
+            this.query,
+            this.options,
+            this.fetchFunctions
+        );
     }
     /**
      * Execute a provided function on the next element in the ProxyQueryExecutionContext.
@@ -55,8 +60,12 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         } catch (err) {
             if (this._hasPartitionedExecutionInfo(err)) {
                 // if this's a partitioned execution info switches the execution context
-                const partitionedExecutionInfo = this._getParitionedExecutionInfo(err);
-                this.queryExecutionContext = this._createPipelinedExecutionContext(partitionedExecutionInfo);
+                const partitionedExecutionInfo = this._getParitionedExecutionInfo(
+                    err
+                );
+                this.queryExecutionContext = this._createPipelinedExecutionContext(
+                    partitionedExecutionInfo
+                );
                 try {
                     // TODO: recusion might be bad...
                     return this.nextItem();
@@ -69,19 +78,30 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         }
     }
 
-    private _createPipelinedExecutionContext(partitionedExecutionInfo: PartitionedQueryExecutionContextInfo) {
-        assert.notStrictEqual(this.resourceLink, undefined, "for top/orderby resourceLink is required.");
-        assert.ok(!Array.isArray(this.resourceLink) || this.resourceLink.length === 1,
-            "for top/orderby exactly one collectionLink is required");
+    private _createPipelinedExecutionContext(
+        partitionedExecutionInfo: PartitionedQueryExecutionContextInfo
+    ) {
+        assert.notStrictEqual(
+            this.resourceLink,
+            undefined,
+            "for top/orderby resourceLink is required."
+        );
+        assert.ok(
+            !Array.isArray(this.resourceLink) || this.resourceLink.length === 1,
+            "for top/orderby exactly one collectionLink is required"
+        );
 
-        const collectionLink = Array.isArray(this.resourceLink) ? this.resourceLink[0] : this.resourceLink;
+        const collectionLink = Array.isArray(this.resourceLink)
+            ? this.resourceLink[0]
+            : this.resourceLink;
 
         return new PipelinedQueryExecutionContext(
             this.documentclient,
             collectionLink,
             this.query,
             this.options,
-            partitionedExecutionInfo);
+            partitionedExecutionInfo
+        );
     }
 
     /**
@@ -97,8 +117,12 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         } catch (err) {
             if (this._hasPartitionedExecutionInfo(err)) {
                 // if this's a partitioned execution info switches the execution context
-                const partitionedExecutionInfo = this._getParitionedExecutionInfo(err);
-                this.queryExecutionContext = this._createPipelinedExecutionContext(partitionedExecutionInfo);
+                const partitionedExecutionInfo = this._getParitionedExecutionInfo(
+                    err
+                );
+                this.queryExecutionContext = this._createPipelinedExecutionContext(
+                    partitionedExecutionInfo
+                );
 
                 // TODO: recursion
                 try {
@@ -128,8 +152,12 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         } catch (err) {
             if (this._hasPartitionedExecutionInfo(err)) {
                 // if this's a partitioned execution info switches the execution context
-                const partitionedExecutionInfo = this._getParitionedExecutionInfo(err);
-                this.queryExecutionContext = this._createPipelinedExecutionContext(partitionedExecutionInfo);
+                const partitionedExecutionInfo = this._getParitionedExecutionInfo(
+                    err
+                );
+                this.queryExecutionContext = this._createPipelinedExecutionContext(
+                    partitionedExecutionInfo
+                );
                 try {
                     // TODO: maybe should move the others to use this pattern as it avoid the recursion issue.
                     return this.queryExecutionContext.fetchMore();
@@ -142,13 +170,17 @@ export class ProxyQueryExecutionContext implements IExecutionContext {
         }
     }
 
-    private _hasPartitionedExecutionInfo(error: any) { // TODO: any error
-        return (error.code === StatusCodes.BadRequest)
-            && ("substatus" in error)
-            && (error["substatus"] === SubStatusCodes.CrossPartitionQueryNotServable);
+    private _hasPartitionedExecutionInfo(error: any) {
+        // TODO: any error
+        return (
+            error.code === StatusCodes.BadRequest &&
+            "substatus" in error &&
+            error["substatus"] === SubStatusCodes.CrossPartitionQueryNotServable
+        );
     }
 
-    private _getParitionedExecutionInfo(error: any) { // TODO: any error
+    private _getParitionedExecutionInfo(error: any) {
+        // TODO: any error
         return JSON.parse(JSON.parse(error.body).additionalErrorInfo);
     }
 }

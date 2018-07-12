@@ -1,6 +1,12 @@
 import { IHeaders } from "..";
 import { Response } from "../../request/request";
-import { AverageAggregator, CountAggregator, MaxAggregator, MinAggregator, SumAggregator } from "../Aggregators";
+import {
+    AverageAggregator,
+    CountAggregator,
+    MaxAggregator,
+    MinAggregator,
+    SumAggregator
+} from "../Aggregators";
 import { IExecutionContext } from "../IExecutionContext";
 import { IEndpointComponent } from "./IEndpointComponent";
 
@@ -16,7 +22,11 @@ export class AggregateEndpointComponent implements IEndpointComponent {
      * @param { object } executionContext - Underlying Execution Context
      * @ignore
      */
-    constructor(private executionContext: IExecutionContext, aggregateOperators: string[]) { // TODO: any
+    constructor(
+        private executionContext: IExecutionContext,
+        aggregateOperators: string[]
+    ) {
+        // TODO: any
         this.executionContext = executionContext;
         this.localAggregators = [];
         aggregateOperators.forEach((aggregateOperator: string) => {
@@ -49,10 +59,14 @@ export class AggregateEndpointComponent implements IEndpointComponent {
         this.aggregateValuesIndex = -1;
 
         try {
-            const {result: resources, headers} = await this._getQueryResults();
+            const {
+                result: resources,
+                headers
+            } = await this._getQueryResults();
 
-            resources.forEach((resource: any) => { // TODO: any
-                this.localAggregators.forEach((aggregator) => {
+            resources.forEach((resource: any) => {
+                // TODO: any
+                this.localAggregators.forEach(aggregator => {
                     let itemValue;
                     // Get the value of the first property if it exists
                     if (resource && Object.keys(resource).length > 0) {
@@ -64,11 +78,11 @@ export class AggregateEndpointComponent implements IEndpointComponent {
             });
 
             // Get the aggregated results
-            this.localAggregators.forEach((aggregator) => {
+            this.localAggregators.forEach(aggregator => {
                 this.aggregateValues.push(aggregator.getResult());
             });
 
-            return {result: this.aggregateValues, headers};
+            return { result: this.aggregateValues, headers };
         } catch (err) {
             throw err;
         }
@@ -80,10 +94,13 @@ export class AggregateEndpointComponent implements IEndpointComponent {
      */
     public async _getQueryResults(): Promise<Response<any>> {
         try {
-            const {result: item, headers} = await this.executionContext.nextItem();
+            const {
+                result: item,
+                headers
+            } = await this.executionContext.nextItem();
             if (item === undefined) {
                 // no more results
-                return {result: this.toArrayTempResources, headers};
+                return { result: this.toArrayTempResources, headers };
             }
 
             this.toArrayTempResources = this.toArrayTempResources.concat(item);
@@ -105,13 +122,17 @@ export class AggregateEndpointComponent implements IEndpointComponent {
             let resHeaders: IHeaders;
             let resources: any;
             if (this.aggregateValues === undefined) {
-                ({result: resources, headers: resHeaders} = await this._getAggregateResult());
+                ({
+                    result: resources,
+                    headers: resHeaders
+                } = await this._getAggregateResult());
             }
-            const resource = this.aggregateValuesIndex < this.aggregateValues.length
-                ? this.aggregateValues[++this.aggregateValuesIndex]
-                : undefined;
+            const resource =
+                this.aggregateValuesIndex < this.aggregateValues.length
+                    ? this.aggregateValues[++this.aggregateValuesIndex]
+                    : undefined;
 
-            return {result: resource, headers: resHeaders};
+            return { result: resource, headers: resHeaders };
         } catch (err) {
             throw err;
         }
@@ -126,10 +147,19 @@ export class AggregateEndpointComponent implements IEndpointComponent {
      */
     public async current(): Promise<Response<any>> {
         if (this.aggregateValues === undefined) {
-            const {result: resouces, headers} = await this._getAggregateResult();
-            return {result: this.aggregateValues[this.aggregateValuesIndex], headers};
+            const {
+                result: resouces,
+                headers
+            } = await this._getAggregateResult();
+            return {
+                result: this.aggregateValues[this.aggregateValuesIndex],
+                headers
+            };
         } else {
-            return {result: this.aggregateValues[this.aggregateValuesIndex], headers: undefined};
+            return {
+                result: this.aggregateValues[this.aggregateValuesIndex],
+                headers: undefined
+            };
         }
     }
 
@@ -140,6 +170,9 @@ export class AggregateEndpointComponent implements IEndpointComponent {
      * @returns {Boolean} true if there is other elements to process in the AggregateEndpointComponent.
      */
     public hasMoreResults() {
-        return this.aggregateValues != null && this.aggregateValuesIndex < this.aggregateValues.length - 1;
+        return (
+            this.aggregateValues != null &&
+            this.aggregateValuesIndex < this.aggregateValues.length - 1
+        );
     }
 }

@@ -1,4 +1,3 @@
-
 export default {
     // QueryMetrics
     RetrievedDocumentCount: "retrievedDocumentCount",
@@ -51,12 +50,13 @@ export default {
     RuntimeExecutionTimesText: "Runtime Execution Times",
     TotalExecutionTimeText: "Query Engine Execution Time",
     SystemFunctionExecuteTimeText: "System Function Execution Time",
-    UserDefinedFunctionExecutionTimeText: "User-defined Function Execution Time",
+    UserDefinedFunctionExecutionTimeText:
+        "User-defined Function Execution Time",
 
     // ClientSideQueryMetrics Text
     ClientSideQueryMetricsText: "Client Side Metrics",
     RetriesText: "Retry Count",
     RequestChargeText: "Request Charge",
     FetchExecutionRangesText: "Partition Execution Timeline",
-    SchedulingMetricsText: "Scheduling Metrics",
+    SchedulingMetricsText: "Scheduling Metrics"
 };

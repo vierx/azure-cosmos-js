@@ -22,7 +22,14 @@ export class MaxAggregator implements IAggregator<number> {
     public aggregate(other: number) {
         if (this.value === undefined) {
             this.value = other;
-        } else if (this.comparer.compareValue(other, typeof (other), this.value, typeof (this.value)) > 0) {
+        } else if (
+            this.comparer.compareValue(
+                other,
+                typeof other,
+                this.value,
+                typeof this.value
+            ) > 0
+        ) {
             this.value = other;
         }
     }

@@ -1,8 +1,6 @@
 import * as assert from "assert";
 import * as Stream from "stream";
-import {
-    CosmosClient,
-} from "../../";
+import { CosmosClient } from "../../";
 import { Container, ContainerDefinition, Database } from "../../client";
 import testConfig from "./../common/_testConfig";
 import { TestHelpers } from "./../common/TestHelpers";
@@ -14,25 +12,29 @@ const endpoint = testConfig.host;
 const masterKey = testConfig.masterKey;
 const client = new CosmosClient({
     endpoint,
-    auth: { masterKey },
+    auth: { masterKey }
 });
 
 async function sleep(time: number) {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         setTimeout(resolve, time);
     });
 }
 
-describe("NodeJS CRUD Tests", function () {
+describe("NodeJS CRUD Tests", function() {
     this.timeout(process.env.MOCHA_TIMEOUT || 600000);
     // remove all databases from the endpoint before each test
-    beforeEach(async function () {
+    beforeEach(async function() {
         await TestHelpers.removeAllDatabases(client);
     });
 
-    describe("TTL tests", function () {
-
-        async function createcontainerWithInvalidDefaultTtl(db: Database, containerDefinition: ContainerDefinition, collId: any, defaultTtl: number) {
+    describe("TTL tests", function() {
+        async function createcontainerWithInvalidDefaultTtl(
+            db: Database,
+            containerDefinition: ContainerDefinition,
+            collId: any,
+            defaultTtl: number
+        ) {
             containerDefinition.id = collId;
             containerDefinition.defaultTtl = defaultTtl;
             try {
@@ -56,13 +58,13 @@ describe("NodeJS CRUD Tests", function () {
             }
         }
 
-        it("nativeApi Validate container and Item TTL values.", async function () {
+        it("nativeApi Validate container and Item TTL values.", async function() {
             try {
                 const { body: db } = await client.databases.create({ id: "ttl test1 database" });
 
                 const containerDefinition = {
                     id: "sample container1",
-                    defaultTtl: 5,
+                    defaultTtl: 5
                 };
                 const database = await client.database(db.id);
                 const { body: containerResult } = await database.containers.create(containerDefinition);
@@ -79,7 +81,7 @@ describe("NodeJS CRUD Tests", function () {
                     id: "doc",
                     name: "sample Item",
                     key: "value",
-                    ttl: 2,
+                    ttl: 2
                 };
 
                 // 0, null, -10 are unsupported value for ttl.Valid values are -1 or a non-zero positive 32-bit integer value
@@ -122,7 +124,6 @@ describe("NodeJS CRUD Tests", function () {
             const { body: doc } = await container.items.create(itemDefinition);
             await sleep(6000);
             await positiveDefaultTtlStep4(container, doc);
-
         }
 
         async function positiveDefaultTtlStep2(container: Container, createdItem: any, itemDefinition: any) {
@@ -145,15 +146,14 @@ describe("NodeJS CRUD Tests", function () {
             const { body: doc } = await container.items.create(itemDefinition);
             await sleep(5000);
             await positiveDefaultTtlStep2(container, doc, itemDefinition);
-
         }
 
-        it("nativeApi Validate Item TTL with positive defaultTtl.", async function () {
+        it("nativeApi Validate Item TTL with positive defaultTtl.", async function() {
             const { body: db } = await client.databases.create({ id: "ttl test2 database" });
 
             const containerDefinition = {
                 id: "sample container",
-                defaultTtl: 5,
+                defaultTtl: 5
             };
 
             const { body: containerResult } = await client.database(db.id).containers.create(containerDefinition);
@@ -163,7 +163,7 @@ describe("NodeJS CRUD Tests", function () {
             const itemDefinition = {
                 id: "doc1",
                 name: "sample Item",
-                key: "value",
+                key: "value"
             };
 
             const { body: createdItem } = await container.items.create(itemDefinition);
@@ -171,7 +171,12 @@ describe("NodeJS CRUD Tests", function () {
             await positiveDefaultTtlStep1(container, createdItem, itemDefinition);
         });
 
-        async function minusOneDefaultTtlStep1(container: Container, createdItem1: any, createdItem2: any, createdItem3: any) {
+        async function minusOneDefaultTtlStep1(
+            container: Container,
+            createdItem1: any,
+            createdItem2: any,
+            createdItem3: any
+        ) {
             // the created Item should be gone now as it 's ttl value is set to 2 which overrides the containers' s defaultTtl value(-1)
             await checkItemGone(container, createdItem3);
 
@@ -183,12 +188,12 @@ describe("NodeJS CRUD Tests", function () {
             assert.equal(readItem2.id, createdItem2.id);
         }
 
-        it("nativeApi Validate Item TTL with -1 defaultTtl.", async function () {
+        it("nativeApi Validate Item TTL with -1 defaultTtl.", async function() {
             const { body: db } = await client.databases.create({ id: "ttl test2 database" });
 
             const containerDefinition = {
                 id: "sample container",
-                defaultTtl: -1,
+                defaultTtl: -1
             };
 
             const { body: createdContainer } = await client.database(db.id).containers.create(containerDefinition);
@@ -198,7 +203,7 @@ describe("NodeJS CRUD Tests", function () {
             const itemDefinition: any = {
                 id: "doc1",
                 name: "sample Item",
-                key: "value",
+                key: "value"
             };
 
             // the created Item 's ttl value would be -1 inherited from the container' s defaultTtl and this Item will never expire
@@ -218,7 +223,7 @@ describe("NodeJS CRUD Tests", function () {
             await minusOneDefaultTtlStep1(container, createdItem1, createdItem2, createdItem3);
         });
 
-        it("nativeApi Validate Item TTL with no defaultTtl.", async function () {
+        it("nativeApi Validate Item TTL with no defaultTtl.", async function() {
             const { body: db } = await client.databases.create({ id: "ttl test3 database" });
 
             const containerDefinition = { id: "sample container" };
@@ -231,7 +236,7 @@ describe("NodeJS CRUD Tests", function () {
                 id: "doc1",
                 name: "sample Item",
                 key: "value",
-                ttl: 5,
+                ttl: 5
             };
 
             const { body: createdItem } = await container.items.create(itemDefinition);
@@ -244,7 +249,6 @@ describe("NodeJS CRUD Tests", function () {
         async function miscCasesStep4(container: Container, createdItem: any, itemDefinition: any) {
             // Created Item still exists even after ttl time has passed since the TTL is disabled at container level
             await checkItemExists(container, createdItem);
-
         }
 
         async function miscCasesStep3(container: Container, upsertedItem: any, itemDefinition: any) {
@@ -287,12 +291,12 @@ describe("NodeJS CRUD Tests", function () {
             await miscCasesStep2(container, itemDefinition);
         }
 
-        it("nativeApi Validate Item TTL Misc cases.", async function () {
+        it("nativeApi Validate Item TTL Misc cases.", async function() {
             const { body: db } = await client.databases.create({ id: "ttl test4 database" });
 
             const containerDefinition = {
                 id: "sample container",
-                defaultTtl: 8,
+                defaultTtl: 8
             };
 
             const { body: containerResult } = await client.database(db.id).containers.create(containerDefinition);
@@ -302,7 +306,7 @@ describe("NodeJS CRUD Tests", function () {
             const itemDefinition = {
                 id: "doc1",
                 name: "sample Item",
-                key: "value",
+                key: "value"
             };
 
             const { body: createdItem } = await container.items.create(itemDefinition);

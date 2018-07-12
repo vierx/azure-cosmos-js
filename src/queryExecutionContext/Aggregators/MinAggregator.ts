@@ -2,7 +2,6 @@ import { OrderByDocumentProducerComparator } from "../orderByDocumentProducerCom
 import { IAggregator } from "./IAggregator";
 
 export class MinAggregator implements IAggregator<number> {
-
     private value: number;
     private comparer: OrderByDocumentProducerComparator;
     /**
@@ -24,8 +23,15 @@ export class MinAggregator implements IAggregator<number> {
         if (this.value === undefined) {
             this.value = other;
         } else {
-            const otherType = other == null ? "NoValue" : typeof (other);
-            if (this.comparer.compareValue(other, otherType, this.value, typeof (this.value)) < 0) {
+            const otherType = other == null ? "NoValue" : typeof other;
+            if (
+                this.comparer.compareValue(
+                    other,
+                    otherType,
+                    this.value,
+                    typeof this.value
+                ) < 0
+            ) {
                 this.value = other;
             }
         }
@@ -39,5 +45,4 @@ export class MinAggregator implements IAggregator<number> {
     public getResult() {
         return this.value;
     }
-
 }

@@ -9,7 +9,7 @@ const client = new CosmosClient({ endpoint, auth: { masterKey } });
 
 // TODO: these tests are all disabled
 
-describe("RU Per Minute", function () {
+describe("RU Per Minute", function() {
     let database: Database;
 
     // - removes all the databases,
@@ -24,15 +24,15 @@ describe("RU Per Minute", function () {
         await TestHelpers.removeAllDatabases(client);
     });
 
-    xit("Create container with RU Per Minute Offer", async function () {
+    xit("Create container with RU Per Minute Offer", async function() {
         const containerDefinition = {
-            id: "sample col",
+            id: "sample col"
         };
 
         const options = {
             offerEnableRUPerMinuteThroughput: true,
             offerVersion: "V2",
-            offerThroughput: 400,
+            offerThroughput: 400
         };
 
         await database.containers.create(containerDefinition, options);
@@ -45,14 +45,14 @@ describe("RU Per Minute", function () {
         assert.equal(offer.content.offerIsRUPerMinuteThroughputEnabled, true);
     });
 
-    xit("Create container without RU Per Minute Offer", async function () {
+    xit("Create container without RU Per Minute Offer", async function() {
         const containerDefinition = {
-            id: "sample col",
+            id: "sample col"
         };
 
         const options = {
             offerVersion: "V2",
-            offerThroughput: 400,
+            offerThroughput: 400
         };
 
         await database.containers.create(containerDefinition, options);
@@ -65,26 +65,26 @@ describe("RU Per Minute", function () {
         assert.equal(offer.content.offerIsRUPerMinuteThroughputEnabled, false);
     });
 
-    xit("Create container with RU Per Minute Offer and insert Document with disableRUPerMinuteUsage options",
-        async function () {
-            const containerDefinition = {
-                id: "sample col",
-            };
+    xit("Create container with RU Per Minute Offer and insert Document with disableRUPerMinuteUsage options", async function() {
+        const containerDefinition = {
+            id: "sample col"
+        };
 
-            const options = {
-                offerEnableRUPerMinuteThroughput: true,
-                offerVersion: "V2",
-                offerThroughput: 400,
-            };
+        const options = {
+            offerEnableRUPerMinuteThroughput: true,
+            offerVersion: "V2",
+            offerThroughput: 400
+        };
 
-            await database.containers.create(containerDefinition, options);
-            const container = database.container(containerDefinition.id);
-            const options2: any = {
-                disableRUPerMinuteUsage: true,
-            };
-            const { headers } = await container.items.create({ id: "sample document" },
-                options2);
-            assert(headers[Constants.HttpHeaders.IsRUPerMinuteUsed] !== true);
-
-        });
+        await database.containers.create(containerDefinition, options);
+        const container = database.container(containerDefinition.id);
+        const options2: any = {
+            disableRUPerMinuteUsage: true
+        };
+        const { headers } = await container.items.create(
+            { id: "sample document" },
+            options2
+        );
+        assert(headers[Constants.HttpHeaders.IsRUPerMinuteUsed] !== true);
+    });
 });

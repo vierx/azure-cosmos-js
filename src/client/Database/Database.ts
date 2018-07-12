@@ -13,7 +13,10 @@ export class Database {
         return UriFactory.createDatabaseUri(this.id);
     }
 
-    constructor(public readonly client: CosmosClient, public readonly id: string) {
+    constructor(
+        public readonly client: CosmosClient,
+        public readonly id: string
+    ) {
         this.containers = new Containers(this);
         this.users = new Users(this);
     }
@@ -27,12 +30,28 @@ export class Database {
     }
 
     public async read(options?: RequestOptions): Promise<DatabaseResponse> {
-        const response = await this.client.documentClient.readDatabase(this.url, options);
-        return { body: response.result, headers: response.headers, ref: this, database: this };
+        const response = await this.client.documentClient.readDatabase(
+            this.url,
+            options
+        );
+        return {
+            body: response.result,
+            headers: response.headers,
+            ref: this,
+            database: this
+        };
     }
 
     public async delete(options?: RequestOptions): Promise<DatabaseResponse> {
-        const response = await this.client.documentClient.deleteDatabase(this.url, options);
-        return { body: response.result, headers: response.headers, ref: this, database: this };
+        const response = await this.client.documentClient.deleteDatabase(
+            this.url,
+            options
+        );
+        return {
+            body: response.result,
+            headers: response.headers,
+            ref: this,
+            database: this
+        };
     }
 }

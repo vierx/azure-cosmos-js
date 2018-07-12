@@ -13,8 +13,7 @@ export class UriFactory {
         databaseId = Helper.trimSlashFromLeftAndRight(databaseId);
         Helper.validateResourceId(databaseId);
 
-        return Constants.Path.DatabasesPathSegment + "/" +
-            databaseId;
+        return Constants.Path.DatabasesPathSegment + "/" + databaseId;
     }
 
     /**
@@ -27,13 +26,20 @@ export class UriFactory {
      * Document, a StoredProcedure, a Trigger, a UserDefinedFunction, or when executing a query \
      * with CreateDocumentQuery in Azure Cosmos DB database service.
      */
-    public static createDocumentCollectionUri(databaseId: string, collectionId: string) {
+    public static createDocumentCollectionUri(
+        databaseId: string,
+        collectionId: string
+    ) {
         collectionId = Helper.trimSlashFromLeftAndRight(collectionId);
         Helper.validateResourceId(collectionId);
 
-        return this.createDatabaseUri(databaseId) + "/" +
-            Constants.Path.CollectionsPathSegment + "/" +
-            collectionId;
+        return (
+            this.createDatabaseUri(databaseId) +
+            "/" +
+            Constants.Path.CollectionsPathSegment +
+            "/" +
+            collectionId
+        );
     }
 
     /**
@@ -49,9 +55,13 @@ export class UriFactory {
         userId = Helper.trimSlashFromLeftAndRight(userId);
         Helper.validateResourceId(userId);
 
-        return this.createDatabaseUri(databaseId) + "/" +
-            Constants.Path.UsersPathSegment + "/" +
-            userId;
+        return (
+            this.createDatabaseUri(databaseId) +
+            "/" +
+            Constants.Path.UsersPathSegment +
+            "/" +
+            userId
+        );
     }
 
     /**
@@ -65,13 +75,21 @@ export class UriFactory {
      * @description Would be used when creating an Attachment, or when replacing \
      * or deleting a Document in Azure Cosmos DB database service
      */
-    public static createDocumentUri(databaseId: string, collectionId: string, documentId: string) {
+    public static createDocumentUri(
+        databaseId: string,
+        collectionId: string,
+        documentId: string
+    ) {
         documentId = Helper.trimSlashFromLeftAndRight(documentId);
         Helper.validateResourceId(documentId);
 
-        return this.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.DocumentsPathSegment + "/" +
-            documentId;
+        return (
+            this.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.DocumentsPathSegment +
+            "/" +
+            documentId
+        );
     }
 
     /**
@@ -83,13 +101,21 @@ export class UriFactory {
      * with {0} being a Uri escaped version of the databaseId, {1} being userId and {2} being permissionId
      * @description Would be used when replacing or deleting a Permission in Azure Cosmos DB database service.
      */
-    public static createPermissionUri(databaseId: string, userId: string, permissionId: string) {
+    public static createPermissionUri(
+        databaseId: string,
+        userId: string,
+        permissionId: string
+    ) {
         permissionId = Helper.trimSlashFromLeftAndRight(permissionId);
         Helper.validateResourceId(permissionId);
 
-        return this.createUserUri(databaseId, userId) + "/" +
-            Constants.Path.PermissionsPathSegment + "/" +
-            permissionId;
+        return (
+            this.createUserUri(databaseId, userId) +
+            "/" +
+            Constants.Path.PermissionsPathSegment +
+            "/" +
+            permissionId
+        );
     }
 
     /**
@@ -103,13 +129,21 @@ export class UriFactory {
      * @description Would be used when replacing, executing, or deleting a StoredProcedure in \
      * Azure Cosmos DB database service.
      */
-    public static createStoredProcedureUri(databaseId: string, collectionId: string, storedProcedureId: string) {
+    public static createStoredProcedureUri(
+        databaseId: string,
+        collectionId: string,
+        storedProcedureId: string
+    ) {
         storedProcedureId = Helper.trimSlashFromLeftAndRight(storedProcedureId);
         Helper.validateResourceId(storedProcedureId);
 
-        return UriFactory.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.StoredProceduresPathSegment + "/" +
-            storedProcedureId;
+        return (
+            UriFactory.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.StoredProceduresPathSegment +
+            "/" +
+            storedProcedureId
+        );
     }
 
     /**
@@ -122,13 +156,21 @@ export class UriFactory {
      * {1} being collectionId and {2} being the triggerId
      * @description Would be used when replacing, executing, or deleting a Trigger in Azure Cosmos DB database service
      */
-    public static createTriggerUri(databaseId: string, collectionId: string, triggerId: string) {
+    public static createTriggerUri(
+        databaseId: string,
+        collectionId: string,
+        triggerId: string
+    ) {
         triggerId = Helper.trimSlashFromLeftAndRight(triggerId);
         Helper.validateResourceId(triggerId);
 
-        return this.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.TriggersPathSegment + "/" +
-            triggerId;
+        return (
+            this.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.TriggersPathSegment +
+            "/" +
+            triggerId
+        );
     }
 
     /**
@@ -141,13 +183,21 @@ export class UriFactory {
      * @description Would be used when replacing, executing, or deleting a UserDefinedFunction in \
      * Azure Cosmos DB database service
      */
-    public static createUserDefinedFunctionUri(databaseId: string, collectionId: string, udfId: string) {
+    public static createUserDefinedFunctionUri(
+        databaseId: string,
+        collectionId: string,
+        udfId: string
+    ) {
         udfId = Helper.trimSlashFromLeftAndRight(udfId);
         Helper.validateResourceId(udfId);
 
-        return this.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.UserDefinedFunctionsPathSegment + "/" +
-            udfId;
+        return (
+            this.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.UserDefinedFunctionsPathSegment +
+            "/" +
+            udfId
+        );
     }
 
     /**
@@ -159,13 +209,21 @@ export class UriFactory {
      * with {0} being a Uri escaped version of the databaseId, {1} being collectionId and {2} being the conflictId
      * @description Would be used when creating a Conflict in Azure Cosmos DB database service.
      */
-    public static createConflictUri(databaseId: string, collectionId: string, conflictId: string) {
+    public static createConflictUri(
+        databaseId: string,
+        collectionId: string,
+        conflictId: string
+    ) {
         conflictId = Helper.trimSlashFromLeftAndRight(conflictId);
         Helper.validateResourceId(conflictId);
 
-        return this.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.ConflictsPathSegment + "/" +
-            conflictId;
+        return (
+            this.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.ConflictsPathSegment +
+            "/" +
+            conflictId
+        );
     }
 
     /**
@@ -179,13 +237,21 @@ export class UriFactory {
      * @description Would be used when creating a Conflict in Azure Cosmos DB database service.
      */
     public static createAttachmentUri(
-        databaseId: string, collectionId: string, documentId: string, attachmentId: string) {
+        databaseId: string,
+        collectionId: string,
+        documentId: string,
+        attachmentId: string
+    ) {
         attachmentId = Helper.trimSlashFromLeftAndRight(attachmentId);
         Helper.validateResourceId(attachmentId);
 
-        return this.createDocumentUri(databaseId, collectionId, documentId) + "/" +
-            Constants.Path.AttachmentsPathSegment + "/" +
-            attachmentId;
+        return (
+            this.createDocumentUri(databaseId, collectionId, documentId) +
+            "/" +
+            Constants.Path.AttachmentsPathSegment +
+            "/" +
+            attachmentId
+        );
     }
 
     /**
@@ -196,8 +262,14 @@ export class UriFactory {
      * @returns {string}                 -A partition key ranges link in the format of \
      * dbs/{0}/colls/{1}/pkranges with {0} being a Uri escaped version of the databaseId and {1} being collectionId
      */
-    public static createPartitionKeyRangesUri(databaseId: string, collectionId: string) {
-        return this.createDocumentCollectionUri(databaseId, collectionId) + "/" +
-            Constants.Path.PartitionKeyRangesPathSegment;
+    public static createPartitionKeyRangesUri(
+        databaseId: string,
+        collectionId: string
+    ) {
+        return (
+            this.createDocumentCollectionUri(databaseId, collectionId) +
+            "/" +
+            Constants.Path.PartitionKeyRangesPathSegment
+        );
     }
 }

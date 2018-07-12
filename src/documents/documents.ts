@@ -33,7 +33,7 @@ export enum ConsistencyLevel {
     BoundedStaleness = "BoundedStaleness",
     Session = "Session",
     Eventual = "Eventual",
-    ConsistentPrefix = "ConsistentPrefix",
+    ConsistentPrefix = "ConsistentPrefix"
 }
 
 /**
@@ -51,7 +51,7 @@ export enum ConsistencyLevel {
 export enum IndexingMode {
     Consistent = "consistent",
     Lazy = "lazy",
-    None = "none",
+    None = "none"
 }
 
 /**
@@ -66,7 +66,7 @@ export enum IndexingMode {
 export enum IndexKind {
     Hash = "Hash",
     Range = "Range",
-    Spatial = "Spatial",
+    Spatial = "Spatial"
 }
 
 export enum DataType {
@@ -74,21 +74,21 @@ export enum DataType {
     String = "String",
     Point = "Point",
     LineString = "LineString",
-    Polygon = "Polygon",
+    Polygon = "Polygon"
 }
 
 export enum PartitionKind {
-    Hash = "Hash",
+    Hash = "Hash"
 }
 
 export enum ConnectionMode {
-    Gateway = 0,
+    Gateway = 0
 }
 
 export enum QueryCompatibilityMode {
     Default = 0,
     Query = 1,
-    SqlQuery = 2,
+    SqlQuery = 2
 }
 
 /**
@@ -102,7 +102,7 @@ export enum QueryCompatibilityMode {
  */
 export enum MediaReadMode {
     Buffered = "Buffered",
-    Streamed = "Streamed",
+    Streamed = "Streamed"
 }
 
 /**
@@ -116,7 +116,7 @@ export enum MediaReadMode {
 export enum PermissionMode {
     None = "none",
     Read = "read",
-    All = "all",
+    All = "all"
 }
 
 /**
@@ -129,7 +129,7 @@ export enum PermissionMode {
  */
 export enum TriggerType {
     Pre = "pre",
-    Post = "post",
+    Post = "post"
 }
 
 /**
@@ -148,7 +148,7 @@ export enum TriggerOperation {
     Create = "create",
     Update = "update",
     Delete = "delete",
-    Replace = "replace",
+    Replace = "replace"
 }
 
 /**
@@ -159,5 +159,5 @@ export enum TriggerOperation {
  * @property Javascript Javascript type.
  */
 export enum UserDefinedFunctionType {
-    Javascript = "Javascript",
+    Javascript = "Javascript"
 }

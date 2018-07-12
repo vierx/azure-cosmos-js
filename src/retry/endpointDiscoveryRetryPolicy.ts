@@ -22,9 +22,11 @@ export class EndpointDiscoveryRetryPolicy {
      * @param {object} globalEndpointManager                           - The GlobalEndpointManager instance.
      */
     constructor(private globalEndpointManager: GlobalEndpointManager) {
-        this.maxRetryAttemptCount = EndpointDiscoveryRetryPolicy.maxRetryAttemptCount;
+        this.maxRetryAttemptCount =
+            EndpointDiscoveryRetryPolicy.maxRetryAttemptCount;
         this.currentRetryAttemptCount = 0;
-        this.retryAfterInMilliseconds = EndpointDiscoveryRetryPolicy.retryAfterInMilliseconds;
+        this.retryAfterInMilliseconds =
+            EndpointDiscoveryRetryPolicy.retryAfterInMilliseconds;
     }
 
     /**
@@ -33,8 +35,10 @@ export class EndpointDiscoveryRetryPolicy {
      */
     public async shouldRetry(err: ErrorResponse): Promise<boolean> {
         if (err) {
-            if (this.currentRetryAttemptCount < this.maxRetryAttemptCount
-                && this.globalEndpointManager.enableEndpointDiscovery) {
+            if (
+                this.currentRetryAttemptCount < this.maxRetryAttemptCount &&
+                this.globalEndpointManager.enableEndpointDiscovery
+            ) {
                 this.currentRetryAttemptCount++;
                 // TODO: Tracing
                 // console.log("Write region was changed, refreshing the regions list from database account

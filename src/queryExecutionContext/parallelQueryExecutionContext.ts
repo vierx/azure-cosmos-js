@@ -2,12 +2,14 @@ import {
     DocumentProducer,
     IExecutionContext,
     ParallelQueryExecutionContextBase,
-    PartitionedQueryExecutionContextInfo,
+    PartitionedQueryExecutionContextInfo
 } from ".";
 import { DocumentClient } from "../documentclient";
 import { PARITIONKEYRANGE } from "../routing";
 
-export class ParallelQueryExecutionContext extends ParallelQueryExecutionContextBase implements IExecutionContext {
+export class ParallelQueryExecutionContext
+    extends ParallelQueryExecutionContextBase
+    implements IExecutionContext {
     /**
      * Provides the ParallelQueryExecutionContext.
      * This class is capable of handling parallelized queries and dervives from ParallelQueryExecutionContextBase.
@@ -24,9 +26,16 @@ export class ParallelQueryExecutionContext extends ParallelQueryExecutionContext
         collectionLink: string,
         query: any,
         options: any,
-        partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo) {
+        partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo
+    ) {
         // Calling on base class constructor
-        super(documentclient, collectionLink, query, options, partitionedQueryExecutionInfo);
+        super(
+            documentclient,
+            collectionLink,
+            query,
+            options,
+            partitionedQueryExecutionInfo
+        );
     }
     // Instance members are inherited
 
@@ -36,24 +45,36 @@ export class ParallelQueryExecutionContext extends ParallelQueryExecutionContext
      * @returns {object}        - Comparator Function
      * @ignore
      */
-    public documentProducerComparator(docProd1: DocumentProducer, docProd2: DocumentProducer) {
+    public documentProducerComparator(
+        docProd1: DocumentProducer,
+        docProd2: DocumentProducer
+    ) {
         const a = docProd1.getTargetParitionKeyRange()["minInclusive"];
         const b = docProd2.getTargetParitionKeyRange()["minInclusive"];
-        return (a === b ? 0 : (a > b ? 1 : -1));
+        return a === b ? 0 : a > b ? 1 : -1;
     }
 
     private _buildContinuationTokenFrom(documentProducer: DocumentProducer) {
         // given the document producer constructs the continuation token
-        if (documentProducer.allFetched && documentProducer.peekBufferedItems().length === 0) {
+        if (
+            documentProducer.allFetched &&
+            documentProducer.peekBufferedItems().length === 0
+        ) {
             return undefined;
         }
 
-        const min = documentProducer.targetPartitionKeyRange[PARITIONKEYRANGE.MinInclusive];
-        const max = documentProducer.targetPartitionKeyRange[PARITIONKEYRANGE.MaxExclusive];
+        const min =
+            documentProducer.targetPartitionKeyRange[
+                PARITIONKEYRANGE.MinInclusive
+            ];
+        const max =
+            documentProducer.targetPartitionKeyRange[
+                PARITIONKEYRANGE.MaxExclusive
+            ];
         const range = {
             min,
             max,
-            id: documentProducer.targetPartitionKeyRange.id,
+            id: documentProducer.targetPartitionKeyRange.id
         };
 
         // TODO: static method
@@ -65,13 +86,14 @@ export class ParallelQueryExecutionContext extends ParallelQueryExecutionContext
             }
         };
 
-        const documentProducerContinuationToken = documentProducer.peekBufferedItems().length > 0
-            ? documentProducer.previousContinuationToken
-            : documentProducer.continuationToken;
+        const documentProducerContinuationToken =
+            documentProducer.peekBufferedItems().length > 0
+                ? documentProducer.previousContinuationToken
+                : documentProducer.continuationToken;
 
         return {
             token: withNullDefault(documentProducerContinuationToken),
-            range,
+            range
         };
     }
 }

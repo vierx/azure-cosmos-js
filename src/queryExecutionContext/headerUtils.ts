@@ -49,24 +49,29 @@ export class HeaderUtils {
             return;
         }
 
-        (headers[Constants.HttpHeaders.RequestCharge] as number) +=
-            HeaderUtils.getRequestChargeIfAny(toBeMergedHeaders);
+        (headers[
+            Constants.HttpHeaders.RequestCharge
+        ] as number) += HeaderUtils.getRequestChargeIfAny(toBeMergedHeaders);
         if (toBeMergedHeaders[Constants.HttpHeaders.IsRUPerMinuteUsed]) {
             headers[Constants.HttpHeaders.IsRUPerMinuteUsed] =
                 toBeMergedHeaders[Constants.HttpHeaders.IsRUPerMinuteUsed];
         }
 
         if (Constants.HttpHeaders.QueryMetrics in toBeMergedHeaders) {
-            const headerQueryMetrics = headers[Constants.HttpHeaders.QueryMetrics];
-            const toBeMergedHeaderQueryMetrics = toBeMergedHeaders[Constants.HttpHeaders.QueryMetrics];
+            const headerQueryMetrics =
+                headers[Constants.HttpHeaders.QueryMetrics];
+            const toBeMergedHeaderQueryMetrics =
+                toBeMergedHeaders[Constants.HttpHeaders.QueryMetrics];
 
             for (const partitionId in toBeMergedHeaderQueryMetrics) {
                 if (partitionId in headerQueryMetrics) {
-                    const combinedQueryMetrics =
-                        headerQueryMetrics[partitionId].add(toBeMergedHeaderQueryMetrics[partitionId]);
+                    const combinedQueryMetrics = headerQueryMetrics[
+                        partitionId
+                    ].add(toBeMergedHeaderQueryMetrics[partitionId]);
                     headerQueryMetrics[partitionId] = combinedQueryMetrics;
                 } else {
-                    headerQueryMetrics[partitionId] = toBeMergedHeaderQueryMetrics[partitionId];
+                    headerQueryMetrics[partitionId] =
+                        toBeMergedHeaderQueryMetrics[partitionId];
                 }
             }
         }

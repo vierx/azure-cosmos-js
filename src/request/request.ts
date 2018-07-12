@@ -1,4 +1,10 @@
-import { Agent, ClientRequest, ClientResponse, OutgoingHttpHeaders, ServerResponse } from "http"; // TYPES ONLY
+import {
+    Agent,
+    ClientRequest,
+    ClientResponse,
+    OutgoingHttpHeaders,
+    ServerResponse
+} from "http"; // TYPES ONLY
 import { RequestOptions } from "https"; // TYPES ONLY
 import { Socket } from "net";
 import * as querystring from "querystring";
@@ -16,7 +22,9 @@ export { ErrorResponse }; // Should refactor this out
 import { Response } from "./Response";
 export { Response }; // Should refactor this out
 
-const isBrowser = new Function("try {return this===window;}catch(e){ return false;}");
+const isBrowser = new Function(
+    "try {return this===window;}catch(e){ return false;}"
+);
 
 // TODO: :This feels hacky... Maybe just do this in the webpack.config.json?
 // Alternatively, we can move to superagent which will handle this for us...
@@ -30,64 +38,94 @@ const https = isBrowser && false ? require("stream-http") : require("https");
 function javaScriptFriendlyJSONStringify(s: object) {
     // two line terminators (Line separator and Paragraph separator) are not needed to be escaped in JSON
     // but are needed to be escaped in JavaScript.
-    return JSON.stringify(s).
-        replace(/\u2028/g, "\\u2028").
-        replace(/\u2029/g, "\\u2029");
+    return JSON.stringify(s)
+        .replace(/\u2028/g, "\\u2028")
+        .replace(/\u2029/g, "\\u2029");
 }
 
 function bodyFromData(data: Stream | Buffer | string | object) {
-    if ((data as Stream).pipe) { return data; }
-    if (Buffer.isBuffer(data)) { return data; }
-    if (typeof data === "string") { return data; }
-    if (typeof data === "object") { return javaScriptFriendlyJSONStringify(data); }
+    if ((data as Stream).pipe) {
+        return data;
+    }
+    if (Buffer.isBuffer(data)) {
+        return data;
+    }
+    if (typeof data === "string") {
+        return data;
+    }
+    if (typeof data === "object") {
+        return javaScriptFriendlyJSONStringify(data);
+    }
     return undefined;
 }
 
-function parse(urlString: string) { return url.parse(urlString); }
+function parse(urlString: string) {
+    return url.parse(urlString);
+}
 
 function createRequestObject(
     connectionPolicy: ConnectionPolicy,
     requestOptions: RequestOptions,
-    body: Body): Promise<Response<any>> {
+    body: Body
+): Promise<Response<any>> {
     return new Promise<Response<any>>((resolve, reject) => {
         function onTimeout() {
             httpsRequest.abort();
         }
 
-        const isMedia = (requestOptions.path.indexOf("//media") === 0);
+        const isMedia = requestOptions.path.indexOf("//media") === 0;
 
-        const httpsRequest: ClientRequest = https.request(requestOptions, (response: ClientResponse) => {
-            // In case of media response, return the stream to the user and the user will need
-            // to handle reading the stream.
-            if (isMedia && connectionPolicy.MediaReadMode === MediaReadMode.Streamed) {
-                return resolve({ result: response, headers: response.headers as IHeaders });
-            }
-
-            let data = "";
-
-            // if the requested data is text (not attachment/media) set the encoding to UTF-8
-            if (!isMedia) {
-                response.setEncoding("utf8");
-            }
-
-            response.on("data", (chunk) => {
-                data += chunk;
-            });
-            response.on("end", () => {
-                if (response.statusCode >= 400) {
-                    return reject(getErrorBody(response, data, response.headers as IHeaders));
+        const httpsRequest: ClientRequest = https.request(
+            requestOptions,
+            (response: ClientResponse) => {
+                // In case of media response, return the stream to the user and the user will need
+                // to handle reading the stream.
+                if (
+                    isMedia &&
+                    connectionPolicy.MediaReadMode === MediaReadMode.Streamed
+                ) {
+                    return resolve({
+                        result: response,
+                        headers: response.headers as IHeaders
+                    });
                 }
 
-                let result;
-                try {
-                    result = isMedia ? data : data.length > 0 ? JSON.parse(data) : undefined;
-                } catch (exception) {
-                    return reject(exception);
+                let data = "";
+
+                // if the requested data is text (not attachment/media) set the encoding to UTF-8
+                if (!isMedia) {
+                    response.setEncoding("utf8");
                 }
 
-                resolve({ result, headers: response.headers as IHeaders });
-            });
-        });
+                response.on("data", chunk => {
+                    data += chunk;
+                });
+                response.on("end", () => {
+                    if (response.statusCode >= 400) {
+                        return reject(
+                            getErrorBody(
+                                response,
+                                data,
+                                response.headers as IHeaders
+                            )
+                        );
+                    }
+
+                    let result;
+                    try {
+                        result = isMedia
+                            ? data
+                            : data.length > 0
+                                ? JSON.parse(data)
+                                : undefined;
+                    } catch (exception) {
+                        return reject(exception);
+                    }
+
+                    resolve({ result, headers: response.headers as IHeaders });
+                });
+            }
+        );
 
         httpsRequest.once("socket", (socket: Socket) => {
             if (isMedia) {
@@ -108,10 +146,10 @@ function createRequestObject(
         if (body["stream"] !== null) {
             body["stream"].pipe(httpsRequest);
         } else if (body["buffer"] !== null) {
-            (httpsRequest).write(body["buffer"]);
-            (httpsRequest).end();
+            httpsRequest.write(body["buffer"]);
+            httpsRequest.end();
         } else {
-            (httpsRequest).end();
+            httpsRequest.end();
         }
     });
 }
@@ -121,20 +159,37 @@ function createRequestObject(
  * @param {object} response - response object returned from the executon of a request.
  * @param {object} data - the data body returned from the executon of a request.
  */
-function getErrorBody(response: ClientResponse, data: string, headers: IHeaders): ErrorResponse {
-    const errorBody: ErrorResponse = { code: response.statusCode, body: data, headers }; // TODO: any Error
+function getErrorBody(
+    response: ClientResponse,
+    data: string,
+    headers: IHeaders
+): ErrorResponse {
+    const errorBody: ErrorResponse = {
+        code: response.statusCode,
+        body: data,
+        headers
+    }; // TODO: any Error
 
     if (Constants.HttpHeaders.ActivityId in response.headers) {
-        errorBody.activityId = response.headers[Constants.HttpHeaders.ActivityId] as string;
+        errorBody.activityId = response.headers[
+            Constants.HttpHeaders.ActivityId
+        ] as string;
     }
 
     if (Constants.HttpHeaders.SubStatus in response.headers) {
-        errorBody.substatus = parseInt(response.headers[Constants.HttpHeaders.SubStatus] as string, 10);
+        errorBody.substatus = parseInt(
+            response.headers[Constants.HttpHeaders.SubStatus] as string,
+            10
+        );
     }
 
     if (Constants.HttpHeaders.RetryAfterInMilliseconds in response.headers) {
-        errorBody.retryAfterInMilliseconds =
-            parseInt(response.headers[Constants.HttpHeaders.RetryAfterInMilliseconds] as string, 10);
+        errorBody.retryAfterInMilliseconds = parseInt(
+            response.headers[
+                Constants.HttpHeaders.RetryAfterInMilliseconds
+            ] as string,
+            10
+        );
     }
 
     return errorBody;
@@ -142,7 +197,10 @@ function getErrorBody(response: ClientResponse, data: string, headers: IHeaders)
 
 export class RequestHandler {
     public static async createRequestObjectStub(
-        connectionPolicy: ConnectionPolicy, requestOptions: RequestOptions, body: Body) {
+        connectionPolicy: ConnectionPolicy,
+        requestOptions: RequestOptions,
+        body: Body
+    ) {
         return createRequestObject(connectionPolicy, requestOptions, body);
     }
 
@@ -168,8 +226,13 @@ export class RequestHandler {
         request: string | { path: string },
         data: string | Buffer | Stream,
         queryParams: any, // TODO: any query params types
-        headers: IHeaders): Promise<Response<any>> { // TODO: any
-        const path = (request as { path: string }).path === undefined ? request : (request as { path: string }).path;
+        headers: IHeaders
+    ): Promise<Response<any>> {
+        // TODO: any
+        const path =
+            (request as { path: string }).path === undefined
+                ? request
+                : (request as { path: string }).path;
         let body: any; // TODO: any
 
         if (data) {
@@ -177,9 +240,10 @@ export class RequestHandler {
             if (!body) {
                 return {
                     result: {
-                        message: "parameter data must be a javascript object, string, Buffer, or stream",
+                        message:
+                            "parameter data must be a javascript object, string, Buffer, or stream"
                     },
-                    headers: undefined,
+                    headers: undefined
                 };
             }
         }
@@ -197,9 +261,9 @@ export class RequestHandler {
             } else {
                 return {
                     result: {
-                        message: "body must be string, Buffer, or stream",
+                        message: "body must be string, Buffer, or stream"
                     },
-                    headers: undefined,
+                    headers: undefined
                 };
             }
         }
@@ -220,20 +284,25 @@ export class RequestHandler {
         }
 
         if (buffer) {
-            requestOptions.headers[Constants.HttpHeaders.ContentLength] = buffer.length;
+            requestOptions.headers[Constants.HttpHeaders.ContentLength] =
+                buffer.length;
             return RetryUtility.execute(
                 globalEndpointManager,
                 { buffer, stream: null },
                 this.createRequestObjectStub,
-                connectionPolicy, requestOptions,
-                request);
+                connectionPolicy,
+                requestOptions,
+                request
+            );
         } else if (stream) {
-            return RetryUtility.execute(globalEndpointManager,
+            return RetryUtility.execute(
+                globalEndpointManager,
                 { buffer: null, stream },
                 this.createRequestObjectStub,
                 connectionPolicy,
                 requestOptions,
-                request);
+                request
+            );
         } else {
             return RetryUtility.execute(
                 globalEndpointManager,
@@ -241,7 +310,8 @@ export class RequestHandler {
                 this.createRequestObjectStub,
                 connectionPolicy,
                 requestOptions,
-                request);
+                request
+            );
         }
     }
 }

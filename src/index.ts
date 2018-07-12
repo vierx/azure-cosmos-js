@@ -7,11 +7,17 @@ export { HashPartitionResolver } from "./hash";
 export { Constants, UriFactory } from "./common";
 export { Base } from "./base";
 export { RetryOptions } from "./retry";
-export { Response, RequestOptions, FeedOptions, MediaOptions, ErrorResponse } from "./request/";
+export {
+    Response,
+    RequestOptions,
+    FeedOptions,
+    MediaOptions,
+    ErrorResponse
+} from "./request/";
 
 export { IHeaders } from "./queryExecutionContext";
 export { QueryIterator } from "./queryIterator";
 
-export {CosmosClient} from "./CosmosClient";
-export {CosmosClientOptions} from "./CosmosClientOptions";
+export { CosmosClient } from "./CosmosClient";
+export { CosmosClientOptions } from "./CosmosClientOptions";
 export * from "./client/";

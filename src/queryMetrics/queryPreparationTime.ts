@@ -7,7 +7,8 @@ export class QueryPreparationTimes {
         public readonly queryCompilationTime: TimeSpan,
         public readonly logicalPlanBuildTime: TimeSpan,
         public readonly physicalPlanBuildTime: TimeSpan,
-        public readonly queryOptimizationTime: TimeSpan) { }
+        public readonly queryOptimizationTime: TimeSpan
+    ) {}
 
     /**
      * returns a new QueryPreparationTimes instance that is the addition of this and the arguments.
@@ -24,33 +25,59 @@ export class QueryPreparationTimes {
 
         for (const queryPreparationTimes of queryPreparationTimesArray) {
             if (queryPreparationTimes == null) {
-                throw new Error("queryPreparationTimesArray has null or undefined item(s)");
+                throw new Error(
+                    "queryPreparationTimesArray has null or undefined item(s)"
+                );
             }
 
-            queryCompilationTime = queryCompilationTime.add(queryPreparationTimes.queryCompilationTime);
-            logicalPlanBuildTime = logicalPlanBuildTime.add(queryPreparationTimes.logicalPlanBuildTime);
-            physicalPlanBuildTime = physicalPlanBuildTime.add(queryPreparationTimes.physicalPlanBuildTime);
-            queryOptimizationTime = queryOptimizationTime.add(queryPreparationTimes.queryOptimizationTime);
+            queryCompilationTime = queryCompilationTime.add(
+                queryPreparationTimes.queryCompilationTime
+            );
+            logicalPlanBuildTime = logicalPlanBuildTime.add(
+                queryPreparationTimes.logicalPlanBuildTime
+            );
+            physicalPlanBuildTime = physicalPlanBuildTime.add(
+                queryPreparationTimes.physicalPlanBuildTime
+            );
+            queryOptimizationTime = queryOptimizationTime.add(
+                queryPreparationTimes.queryOptimizationTime
+            );
         }
 
         return new QueryPreparationTimes(
             queryCompilationTime,
             logicalPlanBuildTime,
             physicalPlanBuildTime,
-            queryOptimizationTime);
+            queryOptimizationTime
+        );
     }
 
     /**
      * Output the QueryPreparationTimes as a delimited string.
      */
     public toDelimitedString() {
-        return `${QueryMetricsConstants.QueryCompileTimeInMs}=${this.queryCompilationTime.totalMilliseconds()};`
-            + `${QueryMetricsConstants.LogicalPlanBuildTimeInMs}=${this.logicalPlanBuildTime.totalMilliseconds()};`
-            + `${QueryMetricsConstants.PhysicalPlanBuildTimeInMs}=${this.physicalPlanBuildTime.totalMilliseconds()};`
-            + `${QueryMetricsConstants.QueryOptimizationTimeInMs}=${this.queryOptimizationTime.totalMilliseconds()}`;
+        return (
+            `${
+                QueryMetricsConstants.QueryCompileTimeInMs
+            }=${this.queryCompilationTime.totalMilliseconds()};` +
+            `${
+                QueryMetricsConstants.LogicalPlanBuildTimeInMs
+            }=${this.logicalPlanBuildTime.totalMilliseconds()};` +
+            `${
+                QueryMetricsConstants.PhysicalPlanBuildTimeInMs
+            }=${this.physicalPlanBuildTime.totalMilliseconds()};` +
+            `${
+                QueryMetricsConstants.QueryOptimizationTimeInMs
+            }=${this.queryOptimizationTime.totalMilliseconds()}`
+        );
     }
 
-    public static readonly zero = new QueryPreparationTimes(TimeSpan.zero, TimeSpan.zero, TimeSpan.zero, TimeSpan.zero);
+    public static readonly zero = new QueryPreparationTimes(
+        TimeSpan.zero,
+        TimeSpan.zero,
+        TimeSpan.zero,
+        TimeSpan.zero
+    );
 
     /**
      * Returns a new instance of the QueryPreparationTimes class that is the
@@ -58,9 +85,13 @@ export class QueryPreparationTimes {
      * @memberof QueryMetrics
      * @instance
      */
-    public static createFromArray(queryPreparationTimesArray: QueryPreparationTimes[]) {
+    public static createFromArray(
+        queryPreparationTimesArray: QueryPreparationTimes[]
+    ) {
         if (queryPreparationTimesArray == null) {
-            throw new Error("queryPreparationTimesArray is null or undefined item(s)");
+            throw new Error(
+                "queryPreparationTimesArray is null or undefined item(s)"
+            );
         }
 
         return QueryPreparationTimes.zero.add(...queryPreparationTimesArray);
@@ -75,9 +106,22 @@ export class QueryPreparationTimes {
         const metrics = QueryMetricsUtils.parseDelimitedString(delimitedString);
 
         return new QueryPreparationTimes(
-            QueryMetricsUtils.timeSpanFromMetrics(metrics, QueryMetricsConstants.QueryCompileTimeInMs),
-            QueryMetricsUtils.timeSpanFromMetrics(metrics, QueryMetricsConstants.LogicalPlanBuildTimeInMs),
-            QueryMetricsUtils.timeSpanFromMetrics(metrics, QueryMetricsConstants.PhysicalPlanBuildTimeInMs),
-            QueryMetricsUtils.timeSpanFromMetrics(metrics, QueryMetricsConstants.QueryOptimizationTimeInMs));
+            QueryMetricsUtils.timeSpanFromMetrics(
+                metrics,
+                QueryMetricsConstants.QueryCompileTimeInMs
+            ),
+            QueryMetricsUtils.timeSpanFromMetrics(
+                metrics,
+                QueryMetricsConstants.LogicalPlanBuildTimeInMs
+            ),
+            QueryMetricsUtils.timeSpanFromMetrics(
+                metrics,
+                QueryMetricsConstants.PhysicalPlanBuildTimeInMs
+            ),
+            QueryMetricsUtils.timeSpanFromMetrics(
+                metrics,
+                QueryMetricsConstants.QueryOptimizationTimeInMs
+            )
+        );
     }
 }

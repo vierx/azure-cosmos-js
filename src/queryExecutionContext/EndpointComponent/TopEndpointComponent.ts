@@ -9,7 +9,10 @@ export class TopEndpointComponent implements IEndpointComponent {
      * @param { object } executionContext - Underlying Execution Context
      * @ignore
      */
-    constructor(private executionContext: IExecutionContext, private topCount: number) { }
+    constructor(
+        private executionContext: IExecutionContext,
+        private topCount: number
+    ) {}
 
     /**
      * Execute a provided function on the next element in the TopEndpointComponent.
@@ -20,7 +23,7 @@ export class TopEndpointComponent implements IEndpointComponent {
      */
     public async nextItem(): Promise<Response<any>> {
         if (this.topCount <= 0) {
-            return {result: undefined, headers: undefined};
+            return { result: undefined, headers: undefined };
         }
         this.topCount--;
         try {
@@ -39,7 +42,7 @@ export class TopEndpointComponent implements IEndpointComponent {
      */
     public async current(): Promise<Response<any>> {
         if (this.topCount <= 0) {
-            return {result: undefined, headers: undefined};
+            return { result: undefined, headers: undefined };
         }
         try {
             return this.executionContext.current();
@@ -55,6 +58,6 @@ export class TopEndpointComponent implements IEndpointComponent {
      * @returns {Boolean} true if there is other elements to process in the TopEndpointComponent.
      */
     public hasMoreResults() {
-        return (this.topCount > 0 && this.executionContext.hasMoreResults());
+        return this.topCount > 0 && this.executionContext.hasMoreResults();
     }
 }

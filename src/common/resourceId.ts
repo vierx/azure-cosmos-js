@@ -47,14 +47,13 @@ export class ResourceId {
         this.UserDefinedFunctionByte = 6;
         this.ConflictByte = 4;
         this.PartitionKeyRangeByte = 5;
-
     }
 
     public parse(id: string) {
         const pair = this.tryParse(id);
 
         if (!pair[0]) {
-            throw (new Error("invalid resource id " + id));
+            throw new Error("invalid resource id " + id);
         }
         return pair[1];
     }
@@ -147,7 +146,7 @@ export class ResourceId {
         }
 
         if (buffer.length >= 8) {
-            const isCollection = (intArray[4] & (128)) > 0;
+            const isCollection = (intArray[4] & 128) > 0;
 
             if (isCollection) {
                 // 5th - 8th bytes represents the collection
@@ -155,31 +154,41 @@ export class ResourceId {
                 rid.documentCollection = buffer.readIntBE(4, 4).toString();
 
                 if (buffer.length >= 16) {
-
                     // 9th - 15th bytes represent one of document, trigger, sproc, udf, conflict, pkrange
-                    const subCollectionResource = ResourceId.bigNumberReadIntBE(buffer, 8, 8).toString();
+                    const subCollectionResource = ResourceId.bigNumberReadIntBE(
+                        buffer,
+                        8,
+                        8
+                    ).toString();
 
-                    if ((intArray[15] >> 4) === this.DocumentByte) {
+                    if (intArray[15] >> 4 === this.DocumentByte) {
                         rid.document = subCollectionResource;
 
                         // 16th - 20th bytes represent the attachment
                         if (buffer.length === 20) {
                             rid.attachment = buffer.readIntBE(16, 4).toString();
                         }
-                    } else if (Math.abs(intArray[15] >> 4) === this.StoredProcedureByte) {
+                    } else if (
+                        Math.abs(intArray[15] >> 4) === this.StoredProcedureByte
+                    ) {
                         rid.storedProcedure = subCollectionResource;
-                    } else if ((intArray[15] >> 4) === this.TriggerByte) {
+                    } else if (intArray[15] >> 4 === this.TriggerByte) {
                         rid.trigger = subCollectionResource;
-                    } else if ((intArray[15] >> 4) === this.UserDefinedFunctionByte) {
+                    } else if (
+                        intArray[15] >> 4 ===
+                        this.UserDefinedFunctionByte
+                    ) {
                         rid.userDefinedFunction = subCollectionResource;
-                    } else if ((intArray[15] >> 4) === this.ConflictByte) {
+                    } else if (intArray[15] >> 4 === this.ConflictByte) {
                         rid.conflict = subCollectionResource;
-                    } else if ((intArray[15] >> 4) === this.PartitionKeyRangeByte) {
+                    } else if (
+                        intArray[15] >> 4 ===
+                        this.PartitionKeyRangeByte
+                    ) {
                         rid.partitionKeyRange = subCollectionResource;
                     } else {
                         return [false, rid];
                     }
-
                 } else if (buffer.length !== 8) {
                     return [false, rid];
                 }
@@ -190,7 +199,11 @@ export class ResourceId {
 
                 // 9th - 15th bytes represent the permission
                 if (buffer.length === 16) {
-                    rid.permission = ResourceId.bigNumberReadIntBE(buffer, 8, 8).toString();
+                    rid.permission = ResourceId.bigNumberReadIntBE(
+                        buffer,
+                        8,
+                        8
+                    ).toString();
                 } else if (buffer.length !== 8) {
                     return [false, rid];
                 }
@@ -202,7 +215,7 @@ export class ResourceId {
 
     public verify(id: string): [boolean, Buffer] {
         if (!id) {
-            throw (new Error("invalid resource id " + id));
+            throw new Error("invalid resource id " + id);
         }
 
         let buffer = ResourceId.fromBase64String(id);
@@ -227,7 +240,10 @@ export class ResourceId {
     }
 
     public isDatabaseId() {
-        return this.database !== EMPTY && (this.documentCollection === EMPTY && this.user === EMPTY);
+        return (
+            this.database !== EMPTY &&
+            (this.documentCollection === EMPTY && this.user === EMPTY)
+        );
     }
 
     public getDatabaseId() {
@@ -246,7 +262,10 @@ export class ResourceId {
     public getUniqueDocumentCollectionId() {
         const db = BigInt(this.database);
         const coll = BigInt(this.documentCollection);
-        return db.shiftLeft(32).or(coll).toString();
+        return db
+            .shiftLeft(32)
+            .or(coll)
+            .toString();
     }
 
     public getStoredProcedureId() {
@@ -337,10 +356,15 @@ export class ResourceId {
         if (this.documentCollection !== EMPTY || this.user !== EMPTY) {
             len = len + 4;
         }
-        if (this.document !== EMPTY || this.permission !== EMPTY
-            || this.storedProcedure !== EMPTY || this.trigger !== EMPTY
-            || this.userDefinedFunction !== EMPTY || this.conflict !== EMPTY
-            || this.partitionKeyRange !== EMPTY) {
+        if (
+            this.document !== EMPTY ||
+            this.permission !== EMPTY ||
+            this.storedProcedure !== EMPTY ||
+            this.trigger !== EMPTY ||
+            this.userDefinedFunction !== EMPTY ||
+            this.conflict !== EMPTY ||
+            this.partitionKeyRange !== EMPTY
+        ) {
             len = len + 8;
         }
         if (this.attachment !== EMPTY) {
@@ -397,7 +421,11 @@ export class ResourceId {
         return ResourceId.toBase64String(this.getValue());
     }
 
-    public static bigNumberReadIntBE(buffer: Buffer, offset: number, byteLength: number) {
+    public static bigNumberReadIntBE(
+        buffer: Buffer,
+        offset: number,
+        byteLength: number
+    ) {
         offset = offset >>> 0;
         byteLength = byteLength >>> 0;
 

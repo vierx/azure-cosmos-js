@@ -17,9 +17,10 @@ export class Base {
     }
 
     /** @ignore */
-    public static jsonStringifyAndEscapeNonASCII(arg: any) { // TODO: better way for this? Not sure.
+    public static jsonStringifyAndEscapeNonASCII(arg: any) {
+        // TODO: better way for this? Not sure.
         // escapes non-ASCII characters as \uXXXX
-        return JSON.stringify(arg).replace(/[\u0080-\uFFFF]/g, (m) => {
+        return JSON.stringify(arg).replace(/[\u0080-\uFFFF]/g, m => {
             return "\\u" + ("0000" + m.charCodeAt(0).toString(16)).slice(-4);
         });
     }
@@ -27,14 +28,16 @@ export class Base {
     public static async getHeaders(
         documentClient: DocumentClientBase,
         defaultHeaders: IHeaders,
-        verb: string, path: string,
+        verb: string,
+        path: string,
         resourceId: string,
         resourceType: string,
         options: RequestOptions | FeedOptions | MediaOptions,
-        partitionKeyRangeId?: string): Promise<IHeaders> {
-
+        partitionKeyRangeId?: string
+    ): Promise<IHeaders> {
         const headers: IHeaders = { ...defaultHeaders };
-        const opts: RequestOptions & FeedOptions & MediaOptions = (options || {}) as any; // TODO: this is dirty
+        const opts: RequestOptions & FeedOptions & MediaOptions = (options ||
+            {}) as any; // TODO: this is dirty
 
         if (opts.continuation) {
             headers[Constants.HttpHeaders.Continuation] = opts.continuation;
@@ -44,14 +47,14 @@ export class Base {
             headers[Constants.HttpHeaders.PreTriggerInclude] =
                 opts.preTriggerInclude.constructor === Array
                     ? (opts.preTriggerInclude as string[]).join(",")
-                    : opts.preTriggerInclude as string;
+                    : (opts.preTriggerInclude as string);
         }
 
         if (opts.postTriggerInclude) {
             headers[Constants.HttpHeaders.PostTriggerInclude] =
                 opts.postTriggerInclude.constructor === Array
                     ? (opts.postTriggerInclude as string[]).join(",")
-                    : opts.postTriggerInclude as string;
+                    : (opts.postTriggerInclude as string);
         }
 
         if (opts.offerType) {
@@ -59,7 +62,8 @@ export class Base {
         }
 
         if (opts.offerThroughput) {
-            headers[Constants.HttpHeaders.OfferThroughput] = opts.offerThroughput;
+            headers[Constants.HttpHeaders.OfferThroughput] =
+                opts.offerThroughput;
         }
 
         if (opts.maxItemCount) {
@@ -68,9 +72,11 @@ export class Base {
 
         if (opts.accessCondition) {
             if (opts.accessCondition.type === "IfMatch") {
-                headers[Constants.HttpHeaders.IfMatch] = opts.accessCondition.condition;
+                headers[Constants.HttpHeaders.IfMatch] =
+                    opts.accessCondition.condition;
             } else {
-                headers[Constants.HttpHeaders.IfNoneMatch] = opts.accessCondition.condition;
+                headers[Constants.HttpHeaders.IfNoneMatch] =
+                    opts.accessCondition.condition;
             }
         }
 
@@ -79,16 +85,19 @@ export class Base {
         }
 
         if (opts.indexingDirective) {
-            headers[Constants.HttpHeaders.IndexingDirective] = opts.indexingDirective;
+            headers[Constants.HttpHeaders.IndexingDirective] =
+                opts.indexingDirective;
         }
 
         // TODO: add consistency level validation.
         if (opts.consistencyLevel) {
-            headers[Constants.HttpHeaders.ConsistencyLevel] = opts.consistencyLevel;
+            headers[Constants.HttpHeaders.ConsistencyLevel] =
+                opts.consistencyLevel;
         }
 
         if (opts.resourceTokenExpirySeconds) {
-            headers[Constants.HttpHeaders.ResourceTokenExpiry] = opts.resourceTokenExpirySeconds;
+            headers[Constants.HttpHeaders.ResourceTokenExpiry] =
+                opts.resourceTokenExpirySeconds;
         }
 
         // TODO: add session token automatic handling in case of session consistency.
@@ -97,23 +106,29 @@ export class Base {
         }
 
         if (opts.enableScanInQuery) {
-            headers[Constants.HttpHeaders.EnableScanInQuery] = opts.enableScanInQuery;
+            headers[Constants.HttpHeaders.EnableScanInQuery] =
+                opts.enableScanInQuery;
         }
 
         if (opts.enableCrossPartitionQuery) {
-            headers[Constants.HttpHeaders.EnableCrossPartitionQuery] = opts.enableCrossPartitionQuery;
+            headers[Constants.HttpHeaders.EnableCrossPartitionQuery] =
+                opts.enableCrossPartitionQuery;
         }
 
         if (opts.populateQuotaInfo) {
-            headers[Constants.HttpHeaders.PopulateQuotaInfo] = opts.populateQuotaInfo;
+            headers[Constants.HttpHeaders.PopulateQuotaInfo] =
+                opts.populateQuotaInfo;
         }
 
         if (opts.populateQueryMetrics) {
-            headers[Constants.HttpHeaders.PopulateQueryMetrics] = opts.populateQueryMetrics;
+            headers[Constants.HttpHeaders.PopulateQueryMetrics] =
+                opts.populateQueryMetrics;
         }
 
         if (opts.maxDegreeOfParallelism !== undefined) {
-            headers[Constants.HttpHeaders.ParallelizeCrossPartitionQuery] = true;
+            headers[
+                Constants.HttpHeaders.ParallelizeCrossPartitionQuery
+            ] = true;
         }
 
         if (opts.populateQuotaInfo) {
@@ -121,14 +136,18 @@ export class Base {
         }
 
         // If the user is not using partition resolver, we add options.partitonKey to the header for elastic containers
-        if ((documentClient as any).partitionResolver === undefined // TODO: paritionResolver does not exist
-            || (documentClient as any).partitionResolver === null) {
+        if (
+            (documentClient as any).partitionResolver === undefined || // TODO: paritionResolver does not exist
+            (documentClient as any).partitionResolver === null
+        ) {
             if (opts.partitionKey !== undefined) {
                 let partitionKey: string[] | string = opts.partitionKey;
                 if (partitionKey === null || !Array.isArray(partitionKey)) {
                     partitionKey = [partitionKey as string];
                 }
-                headers[Constants.HttpHeaders.PartitionKey] = Base.jsonStringifyAndEscapeNonASCII(partitionKey);
+                headers[
+                    Constants.HttpHeaders.PartitionKey
+                ] = Base.jsonStringifyAndEscapeNonASCII(partitionKey);
             }
         }
 
@@ -138,7 +157,8 @@ export class Base {
 
         if (verb === "post" || verb === "put") {
             if (!headers[Constants.HttpHeaders.ContentType]) {
-                headers[Constants.HttpHeaders.ContentType] = Constants.MediaTypes.Json;
+                headers[Constants.HttpHeaders.ContentType] =
+                    Constants.MediaTypes.Json;
             }
         }
 
@@ -147,23 +167,38 @@ export class Base {
         }
 
         if (partitionKeyRangeId !== undefined) {
-            headers[Constants.HttpHeaders.PartitionKeyRangeID] = partitionKeyRangeId;
+            headers[
+                Constants.HttpHeaders.PartitionKeyRangeID
+            ] = partitionKeyRangeId;
         }
 
         if (opts.enableScriptLogging) {
-            headers[Constants.HttpHeaders.EnableScriptLogging] = opts.enableScriptLogging;
+            headers[Constants.HttpHeaders.EnableScriptLogging] =
+                opts.enableScriptLogging;
         }
 
         if (opts.offerEnableRUPerMinuteThroughput) {
-            headers[Constants.HttpHeaders.OfferIsRUPerMinuteThroughputEnabled] = true;
+            headers[
+                Constants.HttpHeaders.OfferIsRUPerMinuteThroughputEnabled
+            ] = true;
         }
 
         if (opts.disableRUPerMinuteUsage) {
             headers[Constants.HttpHeaders.DisableRUPerMinuteUsage] = true;
         }
-        if (documentClient.masterKey || documentClient.resourceTokens || documentClient.tokenProvider) {
+        if (
+            documentClient.masterKey ||
+            documentClient.resourceTokens ||
+            documentClient.tokenProvider
+        ) {
             const token = await AuthHandler.getAuthorizationHeader(
-                documentClient, verb, path, resourceId, resourceType, headers);
+                documentClient,
+                verb,
+                path,
+                resourceId,
+                resourceType,
+                headers
+            );
             headers[Constants.HttpHeaders.Authorization] = token;
         }
         return headers;
@@ -174,7 +209,7 @@ export class Base {
             /* for DatabaseAccount case, both type and objectBody will be undefined. */
             return {
                 type: undefined,
-                objectBody: undefined,
+                objectBody: undefined
             };
         }
 
@@ -214,8 +249,8 @@ export class Base {
             type,
             objectBody: {
                 id,
-                self: resourcePath,
-            },
+                self: resourcePath
+            }
         };
 
         return result;
@@ -226,7 +261,9 @@ export class Base {
         let currentIndex = 0;
 
         const throwError = () => {
-            throw new Error("Path " + path + " is invalid at index " + currentIndex);
+            throw new Error(
+                "Path " + path + " is invalid at index " + currentIndex
+            );
         };
 
         const getEscapedToken = () => {
@@ -239,7 +276,9 @@ export class Base {
                     throwError();
                 }
 
-                if (path[newIndex - 1] !== "\\") { break; }
+                if (path[newIndex - 1] !== "\\") {
+                    break;
+                }
 
                 ++newIndex;
             }
@@ -269,9 +308,11 @@ export class Base {
                 throwError();
             }
 
-            if (++currentIndex === path.length) { break; }
+            if (++currentIndex === path.length) {
+                break;
+            }
 
-            if (path[currentIndex] === '\"' || path[currentIndex] === "'") {
+            if (path[currentIndex] === '"' || path[currentIndex] === "'") {
                 pathParts.push(getEscapedToken());
             } else {
                 pathParts.push(getToken());
@@ -282,11 +323,17 @@ export class Base {
     }
 
     public static getDatabaseLink(link: string) {
-        return link.split("/").slice(0, 2).join("/");
+        return link
+            .split("/")
+            .slice(0, 2)
+            .join("/");
     }
 
     public static getCollectionLink(link: string) {
-        return link.split("/").slice(0, 4).join("/");
+        return link
+            .split("/")
+            .slice(0, 4)
+            .join("/");
     }
 
     public static getAttachmentIdFromMediaId(mediaId: string) {
@@ -357,15 +404,22 @@ export class Base {
                 break;
             }
         }
-        if (!firstId) { return false; }
-        if (firstId.length !== 8) { return true; }
+        if (!firstId) {
+            return false;
+        }
+        if (firstId.length !== 8) {
+            return true;
+        }
         const decodedDataLength = Platform.getDecodedDataLength(firstId);
-        if (decodedDataLength !== 4) { return true; }
+        if (decodedDataLength !== 4) {
+            return true;
+        }
         return false;
     }
 
     public static _trimSlashes(source: string) {
-        return source.replace(Constants.RegularExpressions.TrimLeftSlashes, "")
+        return source
+            .replace(Constants.RegularExpressions.TrimLeftSlashes, "")
             .replace(Constants.RegularExpressions.TrimRightSlashes, "");
     }
 
@@ -401,7 +455,10 @@ export class Base {
         }
     }
 
-    public static ResponseOrCallback(callback: ResponseCallback<any>, value: Response<any>) {
+    public static ResponseOrCallback(
+        callback: ResponseCallback<any>,
+        value: Response<any>
+    ) {
         if (callback) {
             process.nextTick(() => {
                 callback(undefined, value.result, value.headers);
@@ -412,4 +469,8 @@ export class Base {
     }
 }
 
-export type ResponseCallback<T> = (err: any, result?: T, headers?: IHeaders) => void;
+export type ResponseCallback<T> = (
+    err: any,
+    result?: T,
+    headers?: IHeaders
+) => void;

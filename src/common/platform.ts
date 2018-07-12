@@ -4,7 +4,9 @@ import { Constants } from ".";
 export class Platform {
     public static getPlatformDefaultHeaders(): { [key: string]: string } {
         const defaultHeaders: { [key: string]: string } = {};
-        defaultHeaders[Constants.HttpHeaders.UserAgent] = Platform.getUserAgent();
+        defaultHeaders[
+            Constants.HttpHeaders.UserAgent
+        ] = Platform.getUserAgent();
         return defaultHeaders;
     }
 
@@ -21,16 +23,19 @@ export class Platform {
         // "win32/10.0.14393 Nodejs/v4.4.7 documentdb-nodejs-sdk/1.10.0"
         const osName = Platform._getSafeUserAgentSegmentInfo(os.platform());
         const osVersion = Platform._getSafeUserAgentSegmentInfo(os.release());
-        const nodejsVersion = Platform._getSafeUserAgentSegmentInfo(process.version);
+        const nodejsVersion = Platform._getSafeUserAgentSegmentInfo(
+            process.version
+        );
 
-        const userAgent =
-            `${osName}/${osVersion} Nodejs/${nodejsVersion} ${Constants.SDKName}/${Constants.SDKVersion}`;
+        const userAgent = `${osName}/${osVersion} Nodejs/${nodejsVersion} ${
+            Constants.SDKName
+        }/${Constants.SDKVersion}`;
         return userAgent;
     }
 
     public static _getSafeUserAgentSegmentInfo(s: string) {
         // catch null, undefined, etc
-        if (typeof (s) !== "string") {
+        if (typeof s !== "string") {
             s = "unknown";
         }
         // remove all white spaces

@@ -3,41 +3,45 @@ import * as util from "util";
 import { DocumentProducer } from "./documentProducer";
 
 // TODO: this smells funny
-const TYPEORDCOMPARATOR: { [type: string]: { ord: number, compFunc?: (a: any, b: any) => number } } = Object.freeze({
+const TYPEORDCOMPARATOR: {
+    [type: string]: { ord: number; compFunc?: (a: any, b: any) => number };
+} = Object.freeze({
     NoValue: {
-        ord: 0,
+        ord: 0
     },
     undefined: {
-        ord: 1,
+        ord: 1
     },
     boolean: {
         ord: 2,
         compFunc: (a: boolean, b: boolean) => {
-            return (a === b ? 0 : (a > b ? 1 : -1));
-        },
+            return a === b ? 0 : a > b ? 1 : -1;
+        }
     },
     number: {
         ord: 4,
         compFunc: (a: number, b: number) => {
-            return (a === b ? 0 : (a > b ? 1 : -1));
-        },
+            return a === b ? 0 : a > b ? 1 : -1;
+        }
     },
     string: {
         ord: 5,
         compFunc: (a: string, b: string) => {
-            return (a === b ? 0 : (a > b ? 1 : -1));
-        },
-    },
+            return a === b ? 0 : a > b ? 1 : -1;
+        }
+    }
 });
 
 export class OrderByDocumentProducerComparator {
+    constructor(public sortOrder: string[]) {} // TODO: This should be an enum
 
-    constructor(public sortOrder: string[]) { } // TODO: This should be an enum
-
-    public targetPartitionKeyRangeDocProdComparator(docProd1: DocumentProducer, docProd2: DocumentProducer) {
+    public targetPartitionKeyRangeDocProdComparator(
+        docProd1: DocumentProducer,
+        docProd2: DocumentProducer
+    ) {
         const a = docProd1.getTargetParitionKeyRange()["minInclusive"];
         const b = docProd2.getTargetParitionKeyRange()["minInclusive"];
-        return (a === b ? 0 : (a > b ? 1 : -1));
+        return a === b ? 0 : a > b ? 1 : -1;
     }
 
     public compare(docProd1: DocumentProducer, docProd2: DocumentProducer) {
@@ -49,8 +53,12 @@ export class OrderByDocumentProducerComparator {
             return 1;
         }
 
-        const orderByItemsRes1 = this.getOrderByItems(docProd1.peekBufferedItems()[0]);
-        const orderByItemsRes2 = this.getOrderByItems(docProd2.peekBufferedItems()[0]);
+        const orderByItemsRes1 = this.getOrderByItems(
+            docProd1.peekBufferedItems()[0]
+        );
+        const orderByItemsRes2 = this.getOrderByItems(
+            docProd2.peekBufferedItems()[0]
+        );
 
         // validate order by items and types
         // TODO: once V1 order by on different types is fixed this need to change
@@ -59,7 +67,10 @@ export class OrderByDocumentProducerComparator {
         // no async call in the for loop
         for (let i = 0; i < orderByItemsRes1.length; i++) {
             // compares the orderby items one by one
-            const compRes = this.compareOrderByItem(orderByItemsRes1[i], orderByItemsRes2[i]);
+            const compRes = this.compareOrderByItem(
+                orderByItemsRes1[i],
+                orderByItemsRes2[i]
+            );
             if (compRes !== 0) {
                 if (this.sortOrder[i] === "Ascending") {
                     return compRes;
@@ -69,7 +80,10 @@ export class OrderByDocumentProducerComparator {
             }
         }
 
-        return this.targetPartitionKeyRangeDocProdComparator(docProd1, docProd2);
+        return this.targetPartitionKeyRangeDocProdComparator(
+            docProd1,
+            docProd2
+        );
     }
 
     // TODO: This smells funny
@@ -84,14 +98,20 @@ export class OrderByDocumentProducerComparator {
         }
 
         // both are of the same type
-        if ((type1Ord === TYPEORDCOMPARATOR["undefined"].ord)
-            || (type1Ord === TYPEORDCOMPARATOR["NoValue"].ord)) {
+        if (
+            type1Ord === TYPEORDCOMPARATOR["undefined"].ord ||
+            type1Ord === TYPEORDCOMPARATOR["NoValue"].ord
+        ) {
             // if both types are undefined or Null they are equal
             return 0;
         }
 
         const compFunc = TYPEORDCOMPARATOR[type1].compFunc;
-        assert.notEqual(compFunc, undefined, "cannot find the comparison function");
+        assert.notEqual(
+            compFunc,
+            undefined,
+            "cannot find the comparison function"
+        );
         // same type and type is defined compare the items
         return compFunc(item1, item2);
     }
@@ -99,31 +119,49 @@ export class OrderByDocumentProducerComparator {
     public compareOrderByItem(orderByItem1: any, orderByItem2: any) {
         const type1 = this.getType(orderByItem1);
         const type2 = this.getType(orderByItem2);
-        return this.compareValue(orderByItem1["item"], type1, orderByItem2["item"], type2);
+        return this.compareValue(
+            orderByItem1["item"],
+            type1,
+            orderByItem2["item"],
+            type2
+        );
     }
 
     public validateOrderByItems(res1: string[], res2: string[]) {
-        this._throwIf(res1.length !== res2.length, util.format("Expected %s, but got %s.", res1.length, res2.length));
-        this._throwIf(res1.length !== this.sortOrder.length,
-            "orderByItems cannot have a different size than sort orders.");
+        this._throwIf(
+            res1.length !== res2.length,
+            util.format("Expected %s, but got %s.", res1.length, res2.length)
+        );
+        this._throwIf(
+            res1.length !== this.sortOrder.length,
+            "orderByItems cannot have a different size than sort orders."
+        );
 
         for (let i = 0; i < this.sortOrder.length; i++) {
             const type1 = this.getType(res1[i]);
             const type2 = this.getType(res2[i]);
-            this._throwIf(type1 !== type2, util.format("Expected %s, but got %s.", type1, type2));
+            this._throwIf(
+                type1 !== type2,
+                util.format("Expected %s, but got %s.", type1, type2)
+            );
         }
     }
 
-    public getType(orderByItem: any) { // TODO: any item?
+    public getType(orderByItem: any) {
+        // TODO: any item?
         if (orderByItem === undefined || orderByItem.item === undefined) {
             return "NoValue";
         }
-        const type = typeof (orderByItem.item);
-        this._throwIf(TYPEORDCOMPARATOR[type] === undefined, util.format("unrecognizable type %s", type));
+        const type = typeof orderByItem.item;
+        this._throwIf(
+            TYPEORDCOMPARATOR[type] === undefined,
+            util.format("unrecognizable type %s", type)
+        );
         return type;
     }
 
-    public getOrderByItems(res: any) { // TODO: any res?
+    public getOrderByItems(res: any) {
+        // TODO: any res?
         return res["orderByItems"];
     }
 

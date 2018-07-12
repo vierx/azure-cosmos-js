@@ -13,13 +13,20 @@ export class Helper {
             throw new Error("invalid input: input is not string");
         }
 
-        return inputString.replace(Regexes.TrimLeftSlashes, "").replace(Regexes.TrimRightSlashes, "");
+        return inputString
+            .replace(Regexes.TrimLeftSlashes, "")
+            .replace(Regexes.TrimRightSlashes, "");
     }
 
     public static validateResourceId(resourceId: string) {
         // if resourceId is not a string or is empty throw an error
-        if (typeof resourceId !== "string" || this.isStringNullOrEmpty(resourceId)) {
-            throw new Error("Resource Id must be a string and cannot be undefined, null or empty");
+        if (
+            typeof resourceId !== "string" ||
+            this.isStringNullOrEmpty(resourceId)
+        ) {
+            throw new Error(
+                "Resource Id must be a string and cannot be undefined, null or empty"
+            );
         }
 
         // if resourceId starts or ends with space throw an error
@@ -29,11 +36,12 @@ export class Helper {
 
         // if resource id contains illegal characters throw an error
         if (Regexes.IllegalResourceIdCharacters.test(resourceId)) {
-            throw new Error("Illegal characters ['/', '\\', '?', '#'] cannot be used in resourceId");
+            throw new Error(
+                "Illegal characters ['/', '\\', '?', '#'] cannot be used in resourceId"
+            );
         }
 
         return true;
-
     }
 
     public static getResourceIdFromPath(resourcePath: string) {

@@ -1,7 +1,6 @@
 import { IAggregator } from "./IAggregator";
 
 export class CountAggregator implements IAggregator<number> {
-
     public value: number;
     /**
      * Represents an aggregator for COUNT operator.
@@ -29,5 +28,4 @@ export class CountAggregator implements IAggregator<number> {
     public getResult() {
         return this.value;
     }
-
 }

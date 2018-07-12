@@ -16,14 +16,22 @@ export class Permissions {
         return new Permission(this.user, id);
     }
 
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<PermissionDefinition> {
-        return this.client.documentClient
-            .queryPermissions(this.user.url, query, options) as QueryIterator<PermissionDefinition>;
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<PermissionDefinition> {
+        return this.client.documentClient.queryPermissions(
+            this.user.url,
+            query,
+            options
+        ) as QueryIterator<PermissionDefinition>;
     }
 
     public readAll(options?: FeedOptions): QueryIterator<PermissionDefinition> {
-        return this.client.documentClient
-            .readPermissions(this.user.url, options) as QueryIterator<PermissionDefinition>;
+        return this.client.documentClient.readPermissions(
+            this.user.url,
+            options
+        ) as QueryIterator<PermissionDefinition>;
     }
 
     /**
@@ -37,9 +45,13 @@ export class Permissions {
      */
     public create(
         body: PermissionDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<PermissionDefinition>> {
-        return this.client.documentClient.createPermission(this.user.url, body, options);
+        return this.client.documentClient.createPermission(
+            this.user.url,
+            body,
+            options
+        );
     }
 
     /**
@@ -49,8 +61,12 @@ export class Permissions {
      */
     public upsert(
         body: PermissionDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<PermissionDefinition>> {
-        return this.client.documentClient.upsertPermission(this.user.url, body, options);
+        return this.client.documentClient.upsertPermission(
+            this.user.url,
+            body,
+            options
+        );
     }
 }

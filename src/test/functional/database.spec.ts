@@ -7,16 +7,16 @@ const endpoint = testConfig.host;
 const masterKey = testConfig.masterKey;
 const client = new CosmosClient({ endpoint, auth: { masterKey } });
 
-describe("NodeJS CRUD Tests", function () {
+describe("NodeJS CRUD Tests", function() {
     this.timeout(process.env.MOCHA_TIMEOUT || 10000);
     // remove all databases from the endpoint before each test
-    beforeEach(async function () {
+    beforeEach(async function() {
         this.timeout(10000);
         await TestHelpers.removeAllDatabases(client);
     });
 
-    describe("Validate Database CRUD", async function () {
-        const databaseCRUDTest = async function () {
+    describe("Validate Database CRUD", async function() {
+        const databaseCRUDTest = async function() {
             // read databases
             const { result: databases } = await client.databases.readAll().toArray();
             assert.equal(databases.constructor, Array, "Value should be an array");
@@ -29,17 +29,20 @@ describe("NodeJS CRUD Tests", function () {
 
             // read databases after creation
             const { result: databases2 } = await client.databases.readAll().toArray();
-            assert.equal(databases2.length, beforeCreateDatabasesCount + 1,
-                "create should increase the number of databases");
+            assert.equal(
+                databases2.length,
+                beforeCreateDatabasesCount + 1,
+                "create should increase the number of databases"
+            );
             // query databases
             const querySpec = {
                 query: "SELECT * FROM root r WHERE r.id=@id",
                 parameters: [
                     {
                         name: "@id",
-                        value: databaseDefinition.id,
-                    },
-                ],
+                        value: databaseDefinition.id
+                    }
+                ]
             };
             const { result: results } = await client.databases.query(querySpec).toArray();
             assert(results.length > 0, "number of results for the query should be > 0");
@@ -56,14 +59,14 @@ describe("NodeJS CRUD Tests", function () {
             }
         };
 
-        it("nativeApi Should do database CRUD operations successfully name based", async function () {
+        it("nativeApi Should do database CRUD operations successfully name based", async function() {
             await databaseCRUDTest();
         });
     });
 
     // TODO: These are unit tests, not e2e tests like above, so maybe should seperate these.
-    describe("Validate Id validation", function () {
-        it("nativeApi Should fail on ends with a space", async function () {
+    describe("Validate Id validation", function() {
+        it("nativeApi Should fail on ends with a space", async function() {
             // Id shoudn't end with a space.
             try {
                 await client.databases.create({ id: "id_ends_with_space " });
@@ -73,7 +76,7 @@ describe("NodeJS CRUD Tests", function () {
             }
         });
 
-        it("nativeAPI Should fail on contains '/'", async function () {
+        it("nativeAPI Should fail on contains '/'", async function() {
             // Id shoudn't contain "/".
             try {
                 await client.databases.create({ id: "id_with_illegal/_char" });
@@ -83,7 +86,7 @@ describe("NodeJS CRUD Tests", function () {
             }
         });
 
-        it("nativeAPI Should fail on contains '\\'", async function () {
+        it("nativeAPI Should fail on contains '\\'", async function() {
             // Id shoudn't contain "\\".
             try {
                 await client.databases.create({ id: "id_with_illegal\\_char" });
@@ -93,7 +96,7 @@ describe("NodeJS CRUD Tests", function () {
             }
         });
 
-        it("nativeAPI Should fail on contains '?'", async function () {
+        it("nativeAPI Should fail on contains '?'", async function() {
             // Id shoudn't contain "?".
             try {
                 await client.databases.create({ id: "id_with_illegal?_?char" });
@@ -103,8 +106,7 @@ describe("NodeJS CRUD Tests", function () {
             }
         });
 
-        it("nativeAPI should fail on contains '#'", async function () {
-
+        it("nativeAPI should fail on contains '#'", async function() {
             // Id shoudn't contain "#".
             try {
                 await client.databases.create({ id: "id_with_illegal#_char" });

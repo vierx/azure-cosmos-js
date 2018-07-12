@@ -11,7 +11,10 @@ export class User {
         return UriFactory.createUserUri(this.database.id, this.id);
     }
     private client: CosmosClient;
-    constructor(public readonly database: Database, public readonly id: string) {
+    constructor(
+        public readonly database: Database,
+        public readonly id: string
+    ) {
         this.client = this.database.client;
         this.permissions = new Permissions(this);
     }
@@ -24,7 +27,10 @@ export class User {
         return this.client.documentClient.readUser(this.url, options);
     }
 
-    public replace(body: UserDefinition, options?: RequestOptions): Promise<Response<UserDefinition>> {
+    public replace(
+        body: UserDefinition,
+        options?: RequestOptions
+    ): Promise<Response<UserDefinition>> {
         return this.client.documentClient.replaceUser(this.url, body, options);
     }
 

@@ -4,7 +4,7 @@ import {
     IExecutionContext,
     IHeaders,
     ProxyQueryExecutionContext,
-    SqlQuerySpec,
+    SqlQuerySpec
 } from "./queryExecutionContext";
 import { FeedOptions } from "./request/FeedOptions";
 import { Response } from "./request/request";
@@ -31,8 +31,8 @@ export class QueryIterator<T> {
         private query: SqlQuerySpec | string,
         private options: FeedOptions, // TODO: any options
         private fetchFunctions: FetchFunctionCallback | FetchFunctionCallback[],
-        private resourceLink?: string | string[]) {
-
+        private resourceLink?: string | string[]
+    ) {
         this.documentclient = documentclient;
         this.query = query;
         this.fetchFunctions = fetchFunctions;
@@ -132,7 +132,10 @@ export class QueryIterator<T> {
     /** @ignore */
     private async _toArrayImplementation(): Promise<Response<T[]>> {
         while (this.queryExecutionContext.hasMoreResults()) {
-            const { result, headers } = await this.queryExecutionContext.nextItem();
+            const {
+                result,
+                headers
+            } = await this.queryExecutionContext.nextItem();
             // concatinate the results and fetch more
             this.toArrayLastResHeaders = headers;
 
@@ -143,7 +146,10 @@ export class QueryIterator<T> {
 
             this.toArrayTempResources.push(result);
         }
-        return { result: this.toArrayTempResources, headers: this.toArrayLastResHeaders };
+        return {
+            result: this.toArrayTempResources,
+            headers: this.toArrayLastResHeaders
+        };
     }
 
     /** @ignore */
@@ -153,6 +159,7 @@ export class QueryIterator<T> {
             this.query,
             this.options,
             this.fetchFunctions,
-            this.resourceLink);
+            this.resourceLink
+        );
     }
 }

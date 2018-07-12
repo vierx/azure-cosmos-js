@@ -3,11 +3,13 @@ import {
     IExecutionContext,
     OrderByDocumentProducerComparator,
     ParallelQueryExecutionContextBase,
-    PartitionedQueryExecutionContextInfo,
+    PartitionedQueryExecutionContextInfo
 } from ".";
 import { DocumentClient } from "../documentclient";
 
-export class OrderByQueryExecutionContext extends ParallelQueryExecutionContextBase implements IExecutionContext {
+export class OrderByQueryExecutionContext
+    extends ParallelQueryExecutionContextBase
+    implements IExecutionContext {
     private orderByComparator: any;
     /**
      * Provides the OrderByQueryExecutionContext.
@@ -26,12 +28,21 @@ export class OrderByQueryExecutionContext extends ParallelQueryExecutionContextB
     constructor(
         documentclient: DocumentClient,
         collectionLink: string,
-        query: any,  // TODO: any query
+        query: any, // TODO: any query
         options: any, // TODO: any options
-        partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo) {
+        partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo
+    ) {
         // Calling on base class constructor
-        super(documentclient, collectionLink, query, options, partitionedQueryExecutionInfo);
-        this.orderByComparator = new OrderByDocumentProducerComparator(this.sortOrders);
+        super(
+            documentclient,
+            collectionLink,
+            query,
+            options,
+            partitionedQueryExecutionInfo
+        );
+        this.orderByComparator = new OrderByDocumentProducerComparator(
+            this.sortOrders
+        );
     }
     // Instance members are inherited
 
@@ -41,7 +52,10 @@ export class OrderByQueryExecutionContext extends ParallelQueryExecutionContextB
      * @returns {object}        - Comparator Function
      * @ignore
      */
-    public documentProducerComparator(docProd1: DocumentProducer, docProd2: DocumentProducer) {
+    public documentProducerComparator(
+        docProd1: DocumentProducer,
+        docProd2: DocumentProducer
+    ) {
         return this.orderByComparator.compare(docProd1, docProd2);
     }
 }

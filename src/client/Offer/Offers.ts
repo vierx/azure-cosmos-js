@@ -8,7 +8,10 @@ import { OfferDefinition } from "./OfferDefinition";
 export class Offers {
     constructor(public readonly client: CosmosClient) {}
 
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<OfferDefinition> {
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<OfferDefinition> {
         return this.client.documentClient.queryOffers(query, options);
     }
 

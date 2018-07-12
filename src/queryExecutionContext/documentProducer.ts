@@ -13,7 +13,7 @@ const HttpHeaders = Constants;
 enum DocumentProducerStates {
     started = "started",
     inProgress = "inProgress",
-    ended = "ended",
+    ended = "ended"
 }
 
 export class DocumentProducer {
@@ -47,7 +47,9 @@ export class DocumentProducer {
         collectionLink: string,
         query: SqlQuerySpec,
         targetPartitionKeyRange: any, // TODO: any partition key range
-        options: any) { // TODO: any options
+        options: any
+    ) {
+        // TODO: any options
         this.documentclient = documentclient;
         this.collectionLink = collectionLink;
         this.query = query;
@@ -63,8 +65,12 @@ export class DocumentProducer {
         this.respHeaders = HeaderUtils.getInitialHeader();
 
         // tslint:disable-next-line:no-shadowed-variable
-        this.internalExecutionContext =
-            new DefaultQueryExecutionContext(documentclient, query, options, this.fetchFunction);
+        this.internalExecutionContext = new DefaultQueryExecutionContext(
+            documentclient,
+            query,
+            options,
+            this.fetchFunction
+        );
         this.state = DocumentProducer.STATES.inProgress;
     }
     /**
@@ -74,7 +80,11 @@ export class DocumentProducer {
      */
     public peekBufferedItems() {
         const bufferedResults = [];
-        for (let i = 0, done = false; i < this.fetchResults.length && !done; i++) {
+        for (
+            let i = 0, done = false;
+            i < this.fetchResults.length && !done;
+            i++
+        ) {
             const fetchResult = this.fetchResults[i];
             switch (fetchResult.fetchResultType) {
                 case FetchResultType.Done:
@@ -93,8 +103,15 @@ export class DocumentProducer {
 
     public fetchFunction: FetchFunctionCallback = async (options: any) => {
         const isNameBased = Base.isLinkNameBased(this.collectionLink);
-        const path = this.documentclient.getPathFromLink(this.collectionLink, "docs", isNameBased);
-        const id = this.documentclient.getIdFromLink(this.collectionLink, isNameBased);
+        const path = this.documentclient.getPathFromLink(
+            this.collectionLink,
+            "docs",
+            isNameBased
+        );
+        const id = this.documentclient.getIdFromLink(
+            this.collectionLink,
+            isNameBased
+        );
 
         return this.documentclient.queryFeed(
             this.documentclient,
@@ -105,17 +122,25 @@ export class DocumentProducer {
             (parent: any, body: any) => body, // TODO: any
             this.query,
             options,
-            this.targetPartitionKeyRange["id"]);
-    }
+            this.targetPartitionKeyRange["id"]
+        );
+    };
 
     public hasMoreResults() {
-        return this.internalExecutionContext.hasMoreResults() || this.fetchResults.length !== 0;
+        return (
+            this.internalExecutionContext.hasMoreResults() ||
+            this.fetchResults.length !== 0
+        );
     }
 
     public gotSplit() {
         const fetchResult = this.fetchResults[0];
         if (fetchResult.fetchResultType === FetchResultType.Exception) {
-            if (DocumentProducer._needPartitionKeyRangeCacheRefresh(fetchResult.error)) {
+            if (
+                DocumentProducer._needPartitionKeyRangeCacheRefresh(
+                    fetchResult.error
+                )
+            ) {
                 return true;
             }
         }
@@ -129,7 +154,8 @@ export class DocumentProducer {
         return ret;
     }
 
-    private _updateStates(err: any, allFetched: boolean) { // TODO: any Error
+    private _updateStates(err: any, allFetched: boolean) {
+        // TODO: any Error
         if (err) {
             this.state = DocumentProducer.STATES.ended;
             this.err = err;
@@ -141,7 +167,10 @@ export class DocumentProducer {
         if (this.allFetched && this.peekBufferedItems().length === 0) {
             this.state = DocumentProducer.STATES.ended;
         }
-        if (this.internalExecutionContext.continuation === this.continuationToken) {
+        if (
+            this.internalExecutionContext.continuation ===
+            this.continuationToken
+        ) {
             // nothing changed
             return;
         }
@@ -149,10 +178,13 @@ export class DocumentProducer {
         this.continuationToken = this.internalExecutionContext.continuation;
     }
 
-    private static _needPartitionKeyRangeCacheRefresh(error: any) { // TODO: error
-        return (error.code === StatusCodes.Gone)
-            && ("substatus" in error)
-            && (error["substatus"] === SubStatusCodes.PartitionKeyRangeGone);
+    private static _needPartitionKeyRangeCacheRefresh(error: any) {
+        // TODO: error
+        return (
+            error.code === StatusCodes.Gone &&
+            "substatus" in error &&
+            error["substatus"] === SubStatusCodes.PartitionKeyRangeGone
+        );
     }
 
     /**
@@ -166,27 +198,38 @@ export class DocumentProducer {
         }
 
         try {
-            const { result: resources, headers: headerResponse } = await this.internalExecutionContext.fetchMore();
+            const {
+                result: resources,
+                headers: headerResponse
+            } = await this.internalExecutionContext.fetchMore();
             this._updateStates(undefined, resources === undefined);
             if (resources !== undefined) {
                 // some more results
-                resources.forEach((element: any) => { // TODO: resources any
+                resources.forEach((element: any) => {
+                    // TODO: resources any
                     this.fetchResults.push(new FetchResult(element, undefined));
                 });
             }
 
             // need to modify the header response so that the query metrics are per partition
-            if (headerResponse != null && Constants.HttpHeaders.QueryMetrics in headerResponse) {
+            if (
+                headerResponse != null &&
+                Constants.HttpHeaders.QueryMetrics in headerResponse
+            ) {
                 // "0" is the default partition before one is actually assigned.
-                const queryMetrics = headerResponse[Constants.HttpHeaders.QueryMetrics]["0"];
+                const queryMetrics =
+                    headerResponse[Constants.HttpHeaders.QueryMetrics]["0"];
 
                 // Wraping query metrics in a object where the keys are the partition key range.
                 headerResponse[Constants.HttpHeaders.QueryMetrics] = {};
-                headerResponse[Constants.HttpHeaders.QueryMetrics][this.targetPartitionKeyRange.id] = queryMetrics;
+                headerResponse[Constants.HttpHeaders.QueryMetrics][
+                    this.targetPartitionKeyRange.id
+                ] = queryMetrics;
             }
 
             return { result: resources, headers: headerResponse };
-        } catch (err) { // TODO: any error
+        } catch (err) {
+            // TODO: any error
             if (DocumentProducer._needPartitionKeyRangeCacheRefresh(err)) {
                 // Split just happend
                 // Buffer the error so the execution context can still get the feedResponses in the itemBuffer
@@ -258,18 +301,27 @@ export class DocumentProducer {
             // Need to unwrap fetch results
             switch (fetchResult.fetchResultType) {
                 case FetchResultType.Done:
-                    return { result: undefined, headers: this._getAndResetActiveResponseHeaders() };
+                    return {
+                        result: undefined,
+                        headers: this._getAndResetActiveResponseHeaders()
+                    };
                 case FetchResultType.Exception:
                     fetchResult.error.headers = this._getAndResetActiveResponseHeaders();
                     throw fetchResult.error;
                 case FetchResultType.Result:
-                    return { result: fetchResult.feedResponse, headers: this._getAndResetActiveResponseHeaders() };
+                    return {
+                        result: fetchResult.feedResponse,
+                        headers: this._getAndResetActiveResponseHeaders()
+                    };
             }
         }
 
         // If there isn't anymore items left to fetch then let the user know.
         if (this.allFetched) {
-            return { result: undefined, headers: this._getAndResetActiveResponseHeaders() };
+            return {
+                result: undefined,
+                headers: this._getAndResetActiveResponseHeaders()
+            };
         }
 
         // If there are no more bufferd items and there are still items to be fetched then buffer more

@@ -10,7 +10,7 @@ export const Constants = {
         SQL: "application/sql",
         TextHtml: "text/html",
         TextPlain: "text/plain",
-        Xml: "application/xml",
+        Xml: "application/xml"
     },
 
     HttpMethods: {
@@ -19,7 +19,7 @@ export const Constants = {
         Put: "PUT",
         Delete: "DELETE",
         Head: "HEAD",
-        Options: "OPTIONS",
+        Options: "OPTIONS"
     },
 
     HttpHeaders: {
@@ -97,7 +97,8 @@ export const Constants = {
         EnableScanInQuery: "x-ms-documentdb-query-enable-scan",
         EmitVerboseTracesInQuery: "x-ms-documentdb-query-emit-traces",
         EnableCrossPartitionQuery: "x-ms-documentdb-query-enablecrosspartition",
-        ParallelizeCrossPartitionQuery: "x-ms-documentdb-query-parallelizecrosspartitionquery",
+        ParallelizeCrossPartitionQuery:
+            "x-ms-documentdb-query-parallelizecrosspartitionquery",
 
         // QueryMetrics
         // Request header to tell backend to give you query metrics.
@@ -136,11 +137,14 @@ export const Constants = {
         // Custom RUs/minute headers
         DisableRUPerMinuteUsage: "x-ms-documentdb-disable-ru-per-minute-usage",
         IsRUPerMinuteUsed: "x-ms-documentdb-is-ru-per-minute-used",
-        OfferIsRUPerMinuteThroughputEnabled: "x-ms-offer-is-ru-per-minute-throughput-enabled",
+        OfferIsRUPerMinuteThroughputEnabled:
+            "x-ms-offer-is-ru-per-minute-throughput-enabled",
 
         // Index progress headers
-        IndexTransformationProgress: "x-ms-documentdb-collection-index-transformation-progress",
-        LazyIndexingProgress: "x-ms-documentdb-collection-lazy-indexing-progress",
+        IndexTransformationProgress:
+            "x-ms-documentdb-collection-index-transformation-progress",
+        LazyIndexingProgress:
+            "x-ms-documentdb-collection-lazy-indexing-progress",
 
         // Upsert header
         IsUpsert: "x-ms-documentdb-is-upsert",
@@ -150,7 +154,7 @@ export const Constants = {
 
         // StoredProcedure related headers
         EnableScriptLogging: "x-ms-documentdb-script-enable-logging",
-        ScriptLogResults: "x-ms-documentdb-script-log-results",
+        ScriptLogResults: "x-ms-documentdb-script-log-results"
     },
 
     // GlobalDB related constants
@@ -172,21 +176,21 @@ export const Constants = {
         DefaultNumberHashPrecision: 3,
         DefaultNumberRangePrecision: -1,
         DefaultStringHashPrecision: 3,
-        DefaultStringRangePrecision: -1,
+        DefaultStringRangePrecision: -1
     },
 
     ConsistentHashRing: {
-        DefaultVirtualNodesPerCollection: 128,
+        DefaultVirtualNodesPerCollection: 128
     },
 
     RegularExpressions: {
         TrimLeftSlashes: new RegExp("^[/]+"),
         TrimRightSlashes: new RegExp("[/]+$"),
-        IllegalResourceIdCharacters: new RegExp("[/\\\\?#]"),
+        IllegalResourceIdCharacters: new RegExp("[/\\\\?#]")
     },
 
     Quota: {
-        CollectionSize: "collectionSize",
+        CollectionSize: "collectionSize"
     },
 
     Path: {
@@ -204,7 +208,7 @@ export const Constants = {
         SchemasPathSegment: "schemas",
         OffersPathSegment: "offers",
         TopologyPathSegment: "topology",
-        DatabaseAccountPathSegment: "databaseaccount",
+        DatabaseAccountPathSegment: "databaseaccount"
     },
 
     OperationTypes: {
@@ -213,26 +217,25 @@ export const Constants = {
         Upsert: "upsert",
         Delete: "delete",
         Read: "read",
-        Query: "query",
+        Query: "query"
     },
 
     PartitionKeyRange: {
         // Partition Key Range Constants
         MinInclusive: "minInclusive",
         MaxExclusive: "maxExclusive",
-        Id: "id",
+        Id: "id"
     },
 
     QueryRangeConstants: {
         // Partition Key Range Constants
         MinInclusive: "minInclusive",
         MaxExclusive: "maxExclusive",
-        min: "min",
+        min: "min"
     },
 
     EffectiveParitionKeyConstants: {
         MinimumInclusiveEffectivePartitionKey: "",
-        MaximumExclusiveEffectivePartitionKey: "FF",
-    },
-
+        MaximumExclusiveEffectivePartitionKey: "FF"
+    }
 };

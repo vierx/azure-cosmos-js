@@ -1,8 +1,6 @@
 import * as assert from "assert";
 import * as Stream from "stream";
-import {
-    CosmosClient, HashPartitionResolver,
-} from "../../";
+import { CosmosClient, HashPartitionResolver } from "../../";
 import testConfig from "./../common/_testConfig";
 import { TestHelpers } from "./../common/TestHelpers";
 
@@ -13,35 +11,31 @@ const endpoint = testConfig.host;
 const masterKey = testConfig.masterKey;
 const client = new CosmosClient({
     endpoint,
-    auth: { masterKey },
+    auth: { masterKey }
 });
 
-describe("NodeJS CRUD Tests", function () {
+describe("NodeJS CRUD Tests", function() {
     this.timeout(process.env.MOCHA_TIMEOUT || 10000);
-    beforeEach(async function () {
+    beforeEach(async function() {
         this.timeout(10000);
         // remove all databases from the endpoint before each test
         await TestHelpers.removeAllDatabases(client);
     });
 
-    describe("HashPartitionResolver", function () {
-
-        it.skip("CRUD operations", async function () {
+    describe("HashPartitionResolver", function() {
+        it.skip("CRUD operations", async function() {
             // TODO Figure out how/if we should expose partition resolver
-
             // const getPartitionResolver = function (containerLink1: any, collectionLink2: any) {
             //     return new HashPartitionResolver("id", [collectionLink1, collectionLink2]);
             // };
             // const querySpec = {
             //     query: "SELECT * FROM root",
             // };
-
             // const { result: db } = await client.databases.create({ id: "database" });
             // const { result: collection1 } = await client.database(db.id).containers.create({ id: "sample coll 1" });
             // const { result: collection2 } = await client.database(db.id).containers.create({ id: "sample coll 2" });
             // const resolver = getPartitionResolver(collection1.id, collection2.id);
             // client.documentClient.partitionResolvers["foo"] = resolver;
-
             // const { result: doc1 } = await client.createDocument("foo", { id: "sample doc 1" });
             // const { result: doc2 } = await client.createDocument("foo", { id: "sample doc 2" });
             // const { result: doc3 } = await client.createDocument("foo", { id: "sample doc 11" });

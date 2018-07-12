@@ -11,11 +11,21 @@ export class Conflicts {
         this.client = this.container.database.client;
     }
 
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<ConflictDefinition> {
-        return this.client.documentClient.queryConflicts(this.container.url, query, options);
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<ConflictDefinition> {
+        return this.client.documentClient.queryConflicts(
+            this.container.url,
+            query,
+            options
+        );
     }
 
     public readAll(options?: FeedOptions): QueryIterator<ConflictDefinition> {
-        return this.client.documentClient.readConflicts(this.container.url, options);
+        return this.client.documentClient.readConflicts(
+            this.container.url,
+            options
+        );
     }
 }

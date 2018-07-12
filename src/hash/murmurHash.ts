@@ -41,12 +41,16 @@ export class MurmurHash {
             return;
         }
 
-        throw new Error("Invalid argument: 'key' has to be a Buffer, string, or number.");
+        throw new Error(
+            "Invalid argument: 'key' has to be a Buffer, string, or number."
+        );
     }
 
     private static _throwIfInvalidSeed(seed: number) {
         if (isNaN(seed)) {
-            throw new Error("Invalid argument: 'seed' is not and cannot be converted to a number.");
+            throw new Error(
+                "Invalid argument: 'seed' is not and cannot be converted to a number."
+            );
         }
     }
 
@@ -58,12 +62,7 @@ export class MurmurHash {
     private static _getBufferFromNumber(i: number): Buffer {
         i = i >>> 0;
 
-        const buffer = new Uint8Array([
-            i >>> 0,
-            i >>> 8,
-            i >>> 16,
-            i >>> 24,
-        ]);
+        const buffer = new Uint8Array([i >>> 0, i >>> 8, i >>> 16, i >>> 24]);
 
         return buffer as Buffer;
     }
@@ -125,10 +124,15 @@ export class MurmurHash {
     }
 
     private static _multiply(m: number, n: number) {
-        return ((m & 0xffff) * n) + ((((m >>> 16) * n) & 0xffff) << 16);
+        return (m & 0xffff) * n + ((((m >>> 16) * n) & 0xffff) << 16);
     }
 
     private static _readUInt32(uintArray: Uint32Array, i: number) {
-        return (uintArray[i]) | (uintArray[i + 1] << 8) | (uintArray[i + 2] << 16) | (uintArray[i + 3] << 24) >>> 0;
+        return (
+            uintArray[i] |
+            (uintArray[i + 1] << 8) |
+            (uintArray[i + 2] << 16) |
+            ((uintArray[i + 3] << 24) >>> 0)
+        );
     }
 }

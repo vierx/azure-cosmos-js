@@ -1,7 +1,7 @@
 export enum FetchResultType {
     "Done" = 0,
     "Exception" = 1,
-    "Result" = 2,
+    "Result" = 2
 }
 
 export class FetchResult {
@@ -16,7 +16,8 @@ export class FetchResult {
      * @param {object} error                        - The exception meant to be buffered on an unsuccessful fetch
      * @ignore
      */
-    constructor(feedResponse: any, error: any) { // TODO: feedResponse/error
+    constructor(feedResponse: any, error: any) {
+        // TODO: feedResponse/error
         if (feedResponse) {
             this.feedResponse = feedResponse;
             this.fetchResultType = FetchResultType.Result;

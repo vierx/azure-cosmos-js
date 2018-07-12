@@ -6,47 +6,83 @@ import testConfig from "./../common/_testConfig";
 const host = testConfig.host;
 const masterKey = testConfig.masterKey;
 
-describe("Session Container unit tests", function () {
-
+describe("Session Container unit tests", function() {
     const collectionLink = "dbs/testDatabase/colls/testCollection";
     const collectionId = "oWxIAN48yN0=";
 
-    const verify = function (resource: any, resourceType: string) {
+    const verify = function(resource: any, resourceType: string) {
         if (resourceType === "offer" && resource.offer !== 0) {
             return true;
         } else if (resourceType === "db" && resource.database !== 0) {
             return true;
-        } else if (resourceType === "coll" && resource.database !== 0 && resource.collection !== 0) {
+        } else if (
+            resourceType === "coll" &&
+            resource.database !== 0 &&
+            resource.collection !== 0
+        ) {
             return true;
-        } else if (resourceType === "document" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.document !== 0) {
+        } else if (
+            resourceType === "document" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.document !== 0
+        ) {
             return true;
-        } else if (resourceType === "attachment" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.document !== 0 && resource.attachment !== 0) {
+        } else if (
+            resourceType === "attachment" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.document !== 0 &&
+            resource.attachment !== 0
+        ) {
             return true;
-        } else if (resourceType === "sproc" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.storedProcedure !== 0) {
+        } else if (
+            resourceType === "sproc" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.storedProcedure !== 0
+        ) {
             return true;
-        } else if (resourceType === "trigger" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.trigger !== 0) {
+        } else if (
+            resourceType === "trigger" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.trigger !== 0
+        ) {
             return true;
-        } else if (resourceType === "udf" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.userDefinedFunction !== 0) {
+        } else if (
+            resourceType === "udf" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.userDefinedFunction !== 0
+        ) {
             return true;
-        } else if (resourceType === "pkr" && resource.database !== 0
-            && resource.documentCollection !== 0 && resource.partitionKeyRange !== 0) {
+        } else if (
+            resourceType === "pkr" &&
+            resource.database !== 0 &&
+            resource.documentCollection !== 0 &&
+            resource.partitionKeyRange !== 0
+        ) {
             return true;
-        } else if (resourceType === "user" && resource.database !== 0 && resource.user !== 0) {
+        } else if (
+            resourceType === "user" &&
+            resource.database !== 0 &&
+            resource.user !== 0
+        ) {
             return true;
-        } else if (resourceType === "permission" && resource.database !== 0
-            && resource.user !== 0 && resource.permission !== 0) {
+        } else if (
+            resourceType === "permission" &&
+            resource.database !== 0 &&
+            resource.user !== 0 &&
+            resource.permission !== 0
+        ) {
             return true;
         } else {
             return false;
         }
     };
 
-    it("validate ResourceId's parse and toString functions", function () {
+    it("validate ResourceId's parse and toString functions", function() {
         const rid = new ResourceId();
         const offerId = "HW1D";
         const databaseId = "5bdcAA==";
@@ -105,7 +141,7 @@ describe("Session Container unit tests", function () {
         assert.equal(permission.toString(), permissionId);
     });
 
-    it("validate internal functions of Session Container", function () {
+    it("validate internal functions of Session Container", function() {
         const sc = new SessionContainer();
 
         // test compareAndSetToken()
@@ -118,35 +154,49 @@ describe("Session Container unit tests", function () {
         assert.deepEqual(oldTokens, { 0: "201" });
 
         // test getCombinedSessiontoken()
-        assert.equal(sc.getCombinedSessionToken({ 0: "100", 1: "200" }), "0:100,1:200");
+        assert.equal(
+            sc.getCombinedSessionToken({ 0: "100", 1: "200" }),
+            "0:100,1:200"
+        );
 
         const ridRequest = {
             isNameBased: false,
             resourceId: collectionId,
             resourceAddress: collectionId,
             resourceType: "docs",
-            operationType: "create",
+            operationType: "create"
         };
 
         const resHeadersRid = {
             "x-ms-alt-content-path": collectionLink,
-            "x-ms-session-token": "1:1290",
+            "x-ms-session-token": "1:1290"
         };
 
         // test setSessionToken() for rid based request
         sc.setSessionToken(ridRequest, resHeadersRid);
-        assert.deepEqual((sc as any).collectionNameToCollectionResourceId, // TODO: implementation details
-            { "dbs/testDatabase/colls/testCollection": "-566441763" });
-        assert.deepEqual(sc.collectionResourceIdToSessionTokens, { "-566441763": { 1: "1290" } });
+        assert.deepEqual(
+            (sc as any).collectionNameToCollectionResourceId, // TODO: implementation details
+            { "dbs/testDatabase/colls/testCollection": "-566441763" }
+        );
+        assert.deepEqual(sc.collectionResourceIdToSessionTokens, {
+            "-566441763": { 1: "1290" }
+        });
 
         // test getPartitionKeyRangeIdToMapPrivate() for rid based request
-        assert.deepEqual(sc.getPartitionKeyRangeIdToTokenMapPrivate(true, null,
-            "/" + collectionLink + "/"), { 1: "1290" });
+        assert.deepEqual(
+            sc.getPartitionKeyRangeIdToTokenMapPrivate(
+                true,
+                null,
+                "/" + collectionLink + "/"
+            ),
+            { 1: "1290" }
+        );
 
         // test clearToken for rid based request
         sc.clearToken(ridRequest);
-        assert.deepEqual((sc as any).collectionNameToCollectionResourceId,
-            { "dbs/testDatabase/colls/testCollection": "-566441763" });
+        assert.deepEqual((sc as any).collectionNameToCollectionResourceId, {
+            "dbs/testDatabase/colls/testCollection": "-566441763"
+        });
         assert.deepEqual(sc.collectionResourceIdToSessionTokens, {});
 
         const nameBasedRequest: any = {
@@ -154,27 +204,36 @@ describe("Session Container unit tests", function () {
             resourceId: null,
             resourceAddress: "/" + collectionLink + "/",
             resourceType: "docs",
-            operationType: "create",
+            operationType: "create"
         };
         const resHeadersNameBased = {
             "x-ms-alt-content-path": collectionLink,
             "x-ms-content-path": collectionId,
-            "x-ms-session-token": "1:1126",
+            "x-ms-session-token": "1:1126"
         };
 
         // test setSessionToken() for name based request
         sc.setSessionToken(nameBasedRequest, resHeadersNameBased);
-        assert.deepEqual((sc as any).collectionNameToCollectionResourceId,
-            { "dbs/testDatabase/colls/testCollection": "-566441763" });
-        assert.deepEqual(sc.collectionResourceIdToSessionTokens, { "-566441763": { 1: "1126" } });
+        assert.deepEqual((sc as any).collectionNameToCollectionResourceId, {
+            "dbs/testDatabase/colls/testCollection": "-566441763"
+        });
+        assert.deepEqual(sc.collectionResourceIdToSessionTokens, {
+            "-566441763": { 1: "1126" }
+        });
 
         // test getPartitionKeyRangeIdToMapPrivate() for name based request
-        assert.deepEqual(sc.getPartitionKeyRangeIdToTokenMapPrivate(false, collectionId, collectionId), { 1: "1126" });
+        assert.deepEqual(
+            sc.getPartitionKeyRangeIdToTokenMapPrivate(
+                false,
+                collectionId,
+                collectionId
+            ),
+            { 1: "1126" }
+        );
 
         // test clearToken for name based request
         sc.clearToken(nameBasedRequest);
         assert.deepEqual((sc as any).collectionNameToCollectionResourceId, {});
         assert.deepEqual(sc.collectionResourceIdToSessionTokens, {});
     });
-
 });

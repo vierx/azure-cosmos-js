@@ -21,7 +21,7 @@ export class CosmosClient {
             options.endpoint,
             options.auth,
             options.connectionPolicy,
-            options.consistencyLevel,
+            options.consistencyLevel
         );
     }
 

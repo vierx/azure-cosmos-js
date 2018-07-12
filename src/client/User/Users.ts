@@ -12,8 +12,15 @@ export class Users {
         this.client = this.database.client;
     }
 
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<UserDefinition> {
-        return this.client.documentClient.queryUsers(this.database.url, query, options);
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<UserDefinition> {
+        return this.client.documentClient.queryUsers(
+            this.database.url,
+            query,
+            options
+        );
     }
 
     public readAll(options?: FeedOptions): QueryIterator<UserDefinition> {
@@ -26,15 +33,23 @@ export class Users {
      */
     public create(
         body: UserDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<UserDefinition>> {
-        return this.client.documentClient.createUser(this.database.url, body, options);
+        return this.client.documentClient.createUser(
+            this.database.url,
+            body,
+            options
+        );
     }
 
     public upsert(
         body: UserDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<UserDefinition>> {
-        return this.client.documentClient.upsertUser(this.database.url, body, options);
+        return this.client.documentClient.upsertUser(
+            this.database.url,
+            body,
+            options
+        );
     }
 }

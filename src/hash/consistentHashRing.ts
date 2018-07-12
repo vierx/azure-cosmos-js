@@ -15,16 +15,21 @@ export class ConsistentHashRing {
      * @param {function} options.numberOfVirtualNodesPerCollection - Number of points in the ring to assign \
      * to each collection link
      */
-    constructor(nodes: string[], options?: any) { // TODO: options
+    constructor(nodes: string[], options?: any) {
+        // TODO: options
         ConsistentHashRing._throwIfInvalidNodes(nodes);
 
         options = options || {};
-        options.numberOfVirtualNodesPerCollection = options.numberOfVirtualNodesPerCollection || 128;
+        options.numberOfVirtualNodesPerCollection =
+            options.numberOfVirtualNodesPerCollection || 128;
         options.computeHash = options.computeHash || MurmurHash.hash;
 
         this.computeHash = options.computeHash;
-        this.partitions = ConsistentHashRing
-            .constructPartitions(nodes, options.numberOfVirtualNodesPerCollection, options.computeHash);
+        this.partitions = ConsistentHashRing.constructPartitions(
+            nodes,
+            options.numberOfVirtualNodesPerCollection,
+            options.computeHash
+        );
     }
 
     public getNode(key: Key) {
@@ -34,13 +39,17 @@ export class ConsistentHashRing {
     }
 
     private static constructPartitions(
-        nodes: string[], partitionsPerNode: number, computeHashFunction: any) { // TODO: computeHashFunction
+        nodes: string[],
+        partitionsPerNode: number,
+        computeHashFunction: any
+    ) {
+        // TODO: computeHashFunction
         const partitions = nodes.reduce((p, node) => {
             let hashValue = computeHashFunction(node);
             for (let j = 0; j < partitionsPerNode; j++) {
                 p.push({
                     hashValue,
-                    node,
+                    node
                 });
 
                 hashValue = computeHashFunction(hashValue);
@@ -55,14 +64,22 @@ export class ConsistentHashRing {
     }
 
     private static compareHashes(x: number, y: number) {
-        if (x < y) { return -1; }
-        if (x > y) { return 1; }
+        if (x < y) {
+            return -1;
+        }
+        if (x > y) {
+            return 1;
+        }
         return 0;
     }
 
-    private static search(partitions: any[], hashValue: string) { // TODO: Partitions
+    private static search(partitions: any[], hashValue: string) {
+        // TODO: Partitions
         for (let i = 0; i < partitions.length - 1; i++) {
-            if (hashValue >= partitions[i].hashValue && hashValue < partitions[i + 1].hashValue) {
+            if (
+                hashValue >= partitions[i].hashValue &&
+                hashValue < partitions[i + 1].hashValue
+            ) {
                 return i;
             }
         }

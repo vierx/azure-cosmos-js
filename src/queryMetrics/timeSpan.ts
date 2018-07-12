@@ -3,22 +3,22 @@
 const ticksPerMillisecond = 10000;
 const millisecondsPerTick = 1.0 / ticksPerMillisecond;
 
-const ticksPerSecond = ticksPerMillisecond * 1000;   // 10,000,000
-const secondsPerTick = 1.0 / ticksPerSecond;         // 0.0001
+const ticksPerSecond = ticksPerMillisecond * 1000; // 10,000,000
+const secondsPerTick = 1.0 / ticksPerSecond; // 0.0001
 
-const ticksPerMinute = ticksPerSecond * 60;         // 600,000,000
+const ticksPerMinute = ticksPerSecond * 60; // 600,000,000
 const minutesPerTick = 1.0 / ticksPerMinute; // 1.6666666666667e-9
 
-const ticksPerHour = ticksPerMinute * 60;        // 36,000,000,000
+const ticksPerHour = ticksPerMinute * 60; // 36,000,000,000
 const hoursPerTick = 1.0 / ticksPerHour; // 2.77777777777777778e-11
 
-const ticksPerDay = ticksPerHour * 24;          // 864,000,000,000
+const ticksPerDay = ticksPerHour * 24; // 864,000,000,000
 const daysPerTick = 1.0 / ticksPerDay; // 1.1574074074074074074e-12
 
 const millisPerSecond = 1000;
 const millisPerMinute = millisPerSecond * 60; //     60,000
-const millisPerHour = millisPerMinute * 60;   //  3,600,000
-const millisPerDay = millisPerHour * 24;      // 86,400,000
+const millisPerHour = millisPerMinute * 60; //  3,600,000
+const millisPerDay = millisPerHour * 24; // 86,400,000
 
 const maxSeconds = Number.MAX_SAFE_INTEGER / ticksPerSecond;
 const minSeconds = Number.MIN_SAFE_INTEGER / ticksPerSecond;
@@ -41,7 +41,13 @@ const ticksPerTenthSecond = ticksPerMillisecond * 100;
 export class TimeSpan {
     // tslint:disable-next-line:variable-name
     protected _ticks: number;
-    constructor(days: number, hours: number, minutes: number, seconds: number, milliseconds: number) {
+    constructor(
+        days: number,
+        hours: number,
+        minutes: number,
+        seconds: number,
+        milliseconds: number
+    ) {
         // Constructor
         if (!Number.isInteger(days)) {
             throw new Error("days is not an integer");
@@ -63,9 +69,16 @@ export class TimeSpan {
             throw new Error("milliseconds is not an integer");
         }
 
-        const totalMilliSeconds = (days * 3600 * 24 + hours * 3600 + minutes * 60 + seconds) * 1000 + milliseconds;
-        if (totalMilliSeconds > maxMilliSeconds || totalMilliSeconds < minMilliSeconds) {
-            throw new Error("Total number of milliseconds was either too large or too small");
+        const totalMilliSeconds =
+            (days * 3600 * 24 + hours * 3600 + minutes * 60 + seconds) * 1000 +
+            milliseconds;
+        if (
+            totalMilliSeconds > maxMilliSeconds ||
+            totalMilliSeconds < minMilliSeconds
+        ) {
+            throw new Error(
+                "Total number of milliseconds was either too large or too small"
+            );
         }
 
         this._ticks = totalMilliSeconds * ticksPerMillisecond;
@@ -94,7 +107,9 @@ export class TimeSpan {
      */
     public subtract(ts: TimeSpan) {
         if (TimeSpan.subtractionDoesUnderflow(this._ticks, ts._ticks)) {
-            throw new Error("Subtracting the two timestamps causes an underflow.");
+            throw new Error(
+                "Subtracting the two timestamps causes an underflow."
+            );
         }
 
         const results = this._ticks - ts._ticks;
@@ -126,7 +141,9 @@ export class TimeSpan {
      * @instance
      */
     public duration() {
-        return TimeSpan.fromTicks(this._ticks >= 0 ? this._ticks : -this._ticks);
+        return TimeSpan.fromTicks(
+            this._ticks >= 0 ? this._ticks : -this._ticks
+        );
     }
 
     /**
@@ -199,8 +216,12 @@ export class TimeSpan {
     }
 
     public static readonly zero = new TimeSpan(0, 0, 0, 0, 0);
-    public static readonly maxValue = TimeSpan.fromTicks(Number.MAX_SAFE_INTEGER);
-    public static readonly minValue = TimeSpan.fromTicks(Number.MIN_SAFE_INTEGER);
+    public static readonly maxValue = TimeSpan.fromTicks(
+        Number.MAX_SAFE_INTEGER
+    );
+    public static readonly minValue = TimeSpan.fromTicks(
+        Number.MIN_SAFE_INTEGER
+    );
 
     public static isTimeSpan(timespan: TimeSpan) {
         return timespan._ticks;
@@ -217,8 +238,12 @@ export class TimeSpan {
     }
 
     public static compare(t1: TimeSpan, t2: TimeSpan) {
-        if (t1._ticks > t2._ticks) { return 1; }
-        if (t1._ticks < t2._ticks) { return -1; }
+        if (t1._ticks > t2._ticks) {
+            return 1;
+        }
+        if (t1._ticks < t2._ticks) {
+            return -1;
+        }
         return 0;
     }
 
@@ -228,11 +253,13 @@ export class TimeSpan {
         }
 
         const milliseconds = value * scale;
-        if ((milliseconds > maxMilliSeconds) || milliseconds < minMilliSeconds) {
+        if (milliseconds > maxMilliSeconds || milliseconds < minMilliSeconds) {
             throw new Error("timespan too long");
         }
 
-        return TimeSpan.fromTicks(Math.floor(milliseconds * ticksPerMillisecond));
+        return TimeSpan.fromTicks(
+            Math.floor(milliseconds * ticksPerMillisecond)
+        );
     }
 
     public static fromMilliseconds(value: number) {

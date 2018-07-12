@@ -1,7 +1,7 @@
 import { QueryMetricsUtils } from "./queryMetricsUtils";
 
 export class ClientSideMetrics {
-    constructor(public readonly requestCharge: number) { }
+    constructor(public readonly requestCharge: number) {}
 
     /**
      * Adds one or more ClientSideMetrics to a copy of this instance and returns the result.
@@ -13,9 +13,10 @@ export class ClientSideMetrics {
 
         let requestCharge = this.requestCharge;
         for (const clientSideMetrics of clientSideMetricsArray) {
-
             if (clientSideMetrics == null) {
-                throw new Error("clientSideMetrics has null or undefined item(s)");
+                throw new Error(
+                    "clientSideMetrics has null or undefined item(s)"
+                );
             }
 
             requestCharge += clientSideMetrics.requestCharge;
@@ -26,9 +27,13 @@ export class ClientSideMetrics {
 
     public static readonly zero = new ClientSideMetrics(0);
 
-    public static createFromArray(...clientSideMetricsArray: ClientSideMetrics[]) {
+    public static createFromArray(
+        ...clientSideMetricsArray: ClientSideMetrics[]
+    ) {
         if (clientSideMetricsArray == null) {
-            throw new Error("clientSideMetricsArray is null or undefined item(s)");
+            throw new Error(
+                "clientSideMetricsArray is null or undefined item(s)"
+            );
         }
 
         return this.zero.add(...clientSideMetricsArray);

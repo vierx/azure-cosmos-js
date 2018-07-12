@@ -10,14 +10,26 @@ export class UserDefinedFunctions {
     private client: CosmosClient;
     constructor(public readonly container: Container) {
         this.client = this.container.database.client;
-     }
-
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<UserDefinedFunctionDefinition> {
-        return this.client.documentClient.queryUserDefinedFunctions(this.container.url, query, options);
     }
 
-    public readAll(options?: FeedOptions): QueryIterator<UserDefinedFunctionDefinition> {
-        return this.client.documentClient.readUserDefinedFunctions(this.container.url, options);
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<UserDefinedFunctionDefinition> {
+        return this.client.documentClient.queryUserDefinedFunctions(
+            this.container.url,
+            query,
+            options
+        );
+    }
+
+    public readAll(
+        options?: FeedOptions
+    ): QueryIterator<UserDefinedFunctionDefinition> {
+        return this.client.documentClient.readUserDefinedFunctions(
+            this.container.url,
+            options
+        );
     }
 
     /**
@@ -29,9 +41,13 @@ export class UserDefinedFunctions {
      */
     public create(
         body: UserDefinedFunctionDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<UserDefinedFunctionDefinition>> {
-        return this.client.documentClient.createUserDefinedFunction(this.container.url, body, options);
+        return this.client.documentClient.createUserDefinedFunction(
+            this.container.url,
+            body,
+            options
+        );
     }
 
     /**
@@ -43,8 +59,12 @@ export class UserDefinedFunctions {
      */
     public upsert(
         body: UserDefinedFunctionDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<UserDefinedFunctionDefinition>> {
-        return this.client.documentClient.upsertUserDefinedFunction(this.container.url, body, options);
+        return this.client.documentClient.upsertUserDefinedFunction(
+            this.container.url,
+            body,
+            options
+        );
     }
 }

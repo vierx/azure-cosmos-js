@@ -5,15 +5,37 @@ import * as tunnel from "tunnel";
 import * as url from "url";
 import * as util from "util";
 import { Base, ResponseCallback } from "./base";
-import { Constants, Helper, Platform, StatusCodes, SubStatusCodes } from "./common";
+import {
+    Constants,
+    Helper,
+    Platform,
+    StatusCodes,
+    SubStatusCodes
+} from "./common";
 import { DocumentClientBase } from "./DocumentClientBase";
 import {
-    ConnectionPolicy, ConsistencyLevel, DatabaseAccount, Document, PartitionKey, QueryCompatibilityMode,
+    ConnectionPolicy,
+    ConsistencyLevel,
+    DatabaseAccount,
+    Document,
+    PartitionKey,
+    QueryCompatibilityMode
 } from "./documents";
 import { GlobalEndpointManager } from "./globalEndpointManager";
-import { FetchFunctionCallback, IHeaders, SqlQuerySpec } from "./queryExecutionContext";
+import {
+    FetchFunctionCallback,
+    IHeaders,
+    SqlQuerySpec
+} from "./queryExecutionContext";
 import { QueryIterator } from "./queryIterator";
-import { ErrorResponse, FeedOptions, MediaOptions, RequestHandler, RequestOptions, Response } from "./request";
+import {
+    ErrorResponse,
+    FeedOptions,
+    MediaOptions,
+    RequestHandler,
+    RequestOptions,
+    Response
+} from "./request";
 import { RetryOptions } from "./retry";
 import { SessionContainer } from "./sessionContainer";
 
@@ -22,12 +44,16 @@ export class DocumentClient extends DocumentClientBase {
         public urlConnection: string,
         auth: any,
         connectionPolicy?: ConnectionPolicy,
-        consistencyLevel?: ConsistencyLevel) { // TODO: any auth options
+        consistencyLevel?: ConsistencyLevel
+    ) {
+        // TODO: any auth options
         super(urlConnection, auth, connectionPolicy, consistencyLevel);
     }
 
     // NOT USED IN NEW OM
-    public async getWriteEndpoint(callback?: (writeEndPoint: string) => void): Promise<string> {
+    public async getWriteEndpoint(
+        callback?: (writeEndPoint: string) => void
+    ): Promise<string> {
         const p = this._globalEndpointManager.getWriteEndpoint();
 
         if (callback) {
@@ -38,7 +64,9 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     // NOT USED IN NEW OM
-    public getReadEndpoint(callback?: (readEndPoint: string) => void): void | Promise<string> {
+    public getReadEndpoint(
+        callback?: (readEndPoint: string) => void
+    ): void | Promise<string> {
         const p = this._globalEndpointManager.getReadEndpoint();
 
         if (callback) {
@@ -51,8 +79,13 @@ export class DocumentClient extends DocumentClientBase {
     public createDatabase(
         body: object,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any database
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any database
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -63,15 +96,27 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const path = "/dbs"; // TODO: constant
-        return this.create(body, path, "dbs", undefined, undefined, options, callback);
+        return this.create(
+            body,
+            path,
+            "dbs",
+            undefined,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public async createCollection(
         databaseLink: string,
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -83,10 +128,21 @@ export class DocumentClient extends DocumentClientBase {
 
         try {
             const isNameBased = Base.isLinkNameBased(databaseLink);
-            const path = this.getPathFromLink(databaseLink, "colls", isNameBased);
+            const path = this.getPathFromLink(
+                databaseLink,
+                "colls",
+                isNameBased
+            );
             const id = this.getIdFromLink(databaseLink, isNameBased);
 
-            const response = await this.create(body, path, "colls", id, undefined, options);
+            const response = await this.create(
+                body,
+                path,
+                "colls",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -97,19 +153,29 @@ export class DocumentClient extends DocumentClientBase {
         documentsFeedOrDatabaseLink: string, // TODO: bad name
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<Document>): Promise<Response<Document>> { // TODO: any error
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<Document>
+    ): Promise<Response<Document>> {
+        // TODO: any error
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
-        const partitionResolver = this.partitionResolvers[documentsFeedOrDatabaseLink];
+        const partitionResolver = this.partitionResolvers[
+            documentsFeedOrDatabaseLink
+        ];
 
-        const collectionLink = (partitionResolver === undefined || partitionResolver === null)
-            ? documentsFeedOrDatabaseLink
-            : this.resolveCollectionLinkForCreate(partitionResolver, body);
+        const collectionLink =
+            partitionResolver === undefined || partitionResolver === null
+                ? documentsFeedOrDatabaseLink
+                : this.resolveCollectionLinkForCreate(partitionResolver, body);
 
         try {
-            const response: Response<Document> = await this.createDocumentPrivate(collectionLink, body, options);
+            const response: Response<
+                Document
+            > = await this.createDocumentPrivate(collectionLink, body, options);
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -120,8 +186,12 @@ export class DocumentClient extends DocumentClientBase {
         documentLink: string,
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -132,11 +202,22 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(documentLink);
-        const path = this.getPathFromLink(documentLink, "attachments", isNameBased);
+        const path = this.getPathFromLink(
+            documentLink,
+            "attachments",
+            isNameBased
+        );
         const id = this.getIdFromLink(documentLink, isNameBased);
 
         try {
-            const response = await this.create(body, path, "attachments", id, undefined, options);
+            const response = await this.create(
+                body,
+                path,
+                "attachments",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -147,8 +228,13 @@ export class DocumentClient extends DocumentClientBase {
         databaseLink: string,
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any User
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any User
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -163,7 +249,14 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(databaseLink, isNameBased);
 
         try {
-            const response = await this.create(body, path, "users", id, undefined, options);
+            const response = await this.create(
+                body,
+                path,
+                "users",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -174,8 +267,13 @@ export class DocumentClient extends DocumentClientBase {
         userLink: string,
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -189,7 +287,14 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(userLink, "permissions", isNameBased);
         const id = this.getIdFromLink(userLink, isNameBased);
         try {
-            const response = await this.create(body, path, "permissions", id, undefined, options);
+            const response = await this.create(
+                body,
+                path,
+                "permissions",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -200,8 +305,12 @@ export class DocumentClient extends DocumentClientBase {
         collectionLink: string,
         trigger: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -218,11 +327,22 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "triggers", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "triggers",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
         try {
-            const response = await this.create(trigger, path, "triggers", id, undefined, options);
+            const response = await this.create(
+                trigger,
+                path,
+                "triggers",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -233,8 +353,13 @@ export class DocumentClient extends DocumentClientBase {
         collectionLink: string,
         udf: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any udf
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any udf
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -255,7 +380,14 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
         try {
-            const response = await this.create(udf, path, "udfs", id, undefined, options);
+            const response = await this.create(
+                udf,
+                path,
+                "udfs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -266,8 +398,13 @@ export class DocumentClient extends DocumentClientBase {
         collectionLink: string,
         sproc: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -284,11 +421,22 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "sprocs", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "sprocs",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
         try {
-            const response = await this.create(sproc, path, "sprocs", id, undefined, options);
+            const response = await this.create(
+                sproc,
+                path,
+                "sprocs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -300,27 +448,47 @@ export class DocumentClient extends DocumentClientBase {
         documentLink: string,
         readableStream: Readable,
         options?: MediaOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         let initialHeaders = Base.extend({}, this.defaultHeaders);
-        initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+        initialHeaders = Base.extend(
+            initialHeaders,
+            options && options.initialHeaders
+        );
 
         // Add required headers slug and content-type.
         if (options.slug) {
             initialHeaders[Constants.HttpHeaders.Slug] = options.slug;
         }
 
-        initialHeaders[Constants.HttpHeaders.ContentType] = options.contentType || Constants.MediaTypes.OctetStream;
+        initialHeaders[Constants.HttpHeaders.ContentType] =
+            options.contentType || Constants.MediaTypes.OctetStream;
 
         const isNameBased = Base.isLinkNameBased(documentLink);
-        const path = this.getPathFromLink(documentLink, "attachments", isNameBased);
+        const path = this.getPathFromLink(
+            documentLink,
+            "attachments",
+            isNameBased
+        );
         const id = this.getIdFromLink(documentLink, isNameBased);
 
         try {
-            const response = await this.create(readableStream, path, "attachments", id, initialHeaders, options);
+            const response = await this.create(
+                readableStream,
+                path,
+                "attachments",
+                id,
+                initialHeaders,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -330,8 +498,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readDatabase(
         databaseLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -340,7 +512,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(databaseLink, isNameBased);
 
         try {
-            const response = await this.read(path, "dbs", id, undefined, options);
+            const response = await this.read(
+                path,
+                "dbs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -350,8 +528,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readCollection(
         collectionLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -360,8 +542,15 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
         try {
-            const response = await this.read<any>(path, "colls", id, undefined, options);
-            this.partitionKeyDefinitionCache[collectionLink] = response.result.partitionKey;
+            const response = await this.read<any>(
+                path,
+                "colls",
+                id,
+                undefined,
+                options
+            );
+            this.partitionKeyDefinitionCache[collectionLink] =
+                response.result.partitionKey;
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -371,8 +560,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readDocument(
         documentLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<Document>): Promise<Response<Document>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<Document>
+    ): Promise<Response<Document>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -380,7 +573,13 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(documentLink, "", isNameBased);
         const id = this.getIdFromLink(documentLink, isNameBased);
         try {
-            const response = await this.read(path, "docs", id, undefined, options);
+            const response = await this.read(
+                path,
+                "docs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -391,8 +590,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readAttachment(
         attachmentLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -400,7 +603,13 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(attachmentLink, "", isNameBased);
         const id = this.getIdFromLink(attachmentLink, isNameBased);
         try {
-            const response = await this.read(path, "attachments", id, undefined, options);
+            const response = await this.read(
+                path,
+                "attachments",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -410,8 +619,13 @@ export class DocumentClient extends DocumentClientBase {
     public async readUser(
         userLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>) { // TODO: any user
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ) {
+        // TODO: any user
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -420,7 +634,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(userLink, isNameBased);
 
         try {
-            const response = await this.read(path, "users", id, undefined, options);
+            const response = await this.read(
+                path,
+                "users",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -430,8 +650,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readPermission(
         permissionLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -440,7 +664,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(permissionLink, isNameBased);
 
         try {
-            const response = await this.read(path, "permissions", id, undefined, options);
+            const response = await this.read(
+                path,
+                "permissions",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -450,8 +680,12 @@ export class DocumentClient extends DocumentClientBase {
     public async readTrigger(
         triggerLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -462,7 +696,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(triggerLink, isNameBased);
 
         try {
-            const response = await this.read(path, "triggers", id, undefined, options);
+            const response = await this.read(
+                path,
+                "triggers",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -472,8 +712,13 @@ export class DocumentClient extends DocumentClientBase {
     public async readUserDefinedFunction(
         udfLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -482,7 +727,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(udfLink, isNameBased);
 
         try {
-            const response = await this.read(path, "udfs", id, undefined, options);
+            const response = await this.read(
+                path,
+                "udfs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -492,8 +743,13 @@ export class DocumentClient extends DocumentClientBase {
     public async readStoredProcedure(
         sprocLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -501,7 +757,13 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(sprocLink, "", isNameBased);
         const id = this.getIdFromLink(sprocLink, isNameBased);
         try {
-            const response = await this.read(path, "sprocs", id, undefined, options);
+            const response = await this.read(
+                path,
+                "sprocs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -511,8 +773,13 @@ export class DocumentClient extends DocumentClientBase {
     public async readConflict(
         conflictLink: string,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any conflict
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any conflict
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -521,7 +788,13 @@ export class DocumentClient extends DocumentClientBase {
         const id = this.getIdFromLink(conflictLink, isNameBased);
 
         try {
-            const response = await this.read(path, "users", id, undefined, options);
+            const response = await this.read(
+                path,
+                "users",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, response);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -540,7 +813,10 @@ export class DocumentClient extends DocumentClientBase {
         return this.queryDocuments(collectionLink, undefined, options);
     }
 
-    public readPartitionKeyRanges(collectionLink: string, options?: FeedOptions) {
+    public readPartitionKeyRanges(
+        collectionLink: string,
+        options?: FeedOptions
+    ) {
         return this.queryPartitionKeyRanges(collectionLink, undefined, options);
     }
 
@@ -561,8 +837,15 @@ export class DocumentClient extends DocumentClientBase {
         return this.queryTriggers(collectionLink, undefined, options);
     }
 
-    public readUserDefinedFunctions(collectionLink: string, options?: FeedOptions) {
-        return this.queryUserDefinedFunctions(collectionLink, undefined, options);
+    public readUserDefinedFunctions(
+        collectionLink: string,
+        options?: FeedOptions
+    ) {
+        return this.queryUserDefinedFunctions(
+            collectionLink,
+            undefined,
+            options
+        );
     }
 
     public readStoredProcedures(collectionLink: string, options?: FeedOptions) {
@@ -573,7 +856,12 @@ export class DocumentClient extends DocumentClientBase {
         return this.queryConflicts(collectionLink, undefined, options);
     }
 
-    private processQueryFeedResponse(res: Response<any>, isQuery: boolean, result: any, create: any): Response<any> {
+    private processQueryFeedResponse(
+        res: Response<any>,
+        isQuery: boolean,
+        result: any,
+        create: any
+    ): Response<any> {
         if (isQuery) {
             return { result: result(res.result), headers: res.headers };
         } else {
@@ -593,262 +881,405 @@ export class DocumentClient extends DocumentClientBase {
         createFn: (parent: DocumentClient, body: any) => any, // TODO: any
         query: SqlQuerySpec | string,
         options: FeedOptions,
-        partitionKeyRangeId?: string): Promise<Response<any>> {
-
+        partitionKeyRangeId?: string
+    ): Promise<Response<any>> {
         try {
             // Query operations will use ReadEndpoint even though it uses
             // GET(for queryFeed) and POST(for regular query operations)
             const readEndpoint = await this._globalEndpointManager.getReadEndpoint();
 
-            const request: any = { // TODO: any request
+            const request: any = {
+                // TODO: any request
                 path,
                 operationType: Constants.OperationTypes.Query,
                 client: this,
-                endpointOverride: null,
+                endpointOverride: null
             };
 
             let initialHeaders = Base.extend({}, documentclient.defaultHeaders);
-            initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+            initialHeaders = Base.extend(
+                initialHeaders,
+                options && options.initialHeaders
+            );
             if (query === undefined) {
                 const reqHeaders = await Base.getHeaders(
-                    documentclient, initialHeaders, "get", path, id, type, options, partitionKeyRangeId);
+                    documentclient,
+                    initialHeaders,
+                    "get",
+                    path,
+                    id,
+                    type,
+                    options,
+                    partitionKeyRangeId
+                );
                 this.applySessionToken(path, reqHeaders);
 
-                const { result, headers: resHeaders } = await documentclient.get(readEndpoint, request, reqHeaders);
-                this.captureSessionToken(undefined, path, Constants.OperationTypes.Query, resHeaders);
-                return this.processQueryFeedResponse({ result, headers: resHeaders }, !!query, resultFn, createFn);
+                const {
+                    result,
+                    headers: resHeaders
+                } = await documentclient.get(readEndpoint, request, reqHeaders);
+                this.captureSessionToken(
+                    undefined,
+                    path,
+                    Constants.OperationTypes.Query,
+                    resHeaders
+                );
+                return this.processQueryFeedResponse(
+                    { result, headers: resHeaders },
+                    !!query,
+                    resultFn,
+                    createFn
+                );
             } else {
                 initialHeaders[Constants.HttpHeaders.IsQuery] = "true";
                 switch (this.queryCompatibilityMode) {
                     case QueryCompatibilityMode.SqlQuery:
-                        initialHeaders[Constants.HttpHeaders.ContentType] = Constants.MediaTypes.SQL;
+                        initialHeaders[Constants.HttpHeaders.ContentType] =
+                            Constants.MediaTypes.SQL;
                         break;
                     case QueryCompatibilityMode.Query:
                     case QueryCompatibilityMode.Default:
                     default:
                         if (typeof query === "string") {
-                            query = { query };  // Converts query text to query object.
+                            query = { query }; // Converts query text to query object.
                         }
-                        initialHeaders[Constants.HttpHeaders.ContentType] = Constants.MediaTypes.QueryJson;
+                        initialHeaders[Constants.HttpHeaders.ContentType] =
+                            Constants.MediaTypes.QueryJson;
                         break;
                 }
 
                 const reqHeaders = await Base.getHeaders(
-                    documentclient, initialHeaders, "post", path, id, type, options, partitionKeyRangeId);
+                    documentclient,
+                    initialHeaders,
+                    "post",
+                    path,
+                    id,
+                    type,
+                    options,
+                    partitionKeyRangeId
+                );
                 this.applySessionToken(path, reqHeaders);
 
-                const response =
-                    await documentclient.post(readEndpoint, request, query, reqHeaders);
+                const response = await documentclient.post(
+                    readEndpoint,
+                    request,
+                    query,
+                    reqHeaders
+                );
                 const { result, headers: resHeaders } = response;
-                this.captureSessionToken(undefined, path, Constants.OperationTypes.Query, resHeaders);
-                return this.processQueryFeedResponse({ result, headers: resHeaders }, !!query, resultFn, createFn);
+                this.captureSessionToken(
+                    undefined,
+                    path,
+                    Constants.OperationTypes.Query,
+                    resHeaders
+                );
+                return this.processQueryFeedResponse(
+                    { result, headers: resHeaders },
+                    !!query,
+                    resultFn,
+                    createFn
+                );
             }
-
         } catch (err) {
             throw err;
         }
     }
 
     public queryDatabases(query: SqlQuerySpec | string, options?: FeedOptions) {
-        const cb: FetchFunctionCallback = (innerOptions) => {
+        const cb: FetchFunctionCallback = innerOptions => {
             return this.queryFeed(
                 this,
                 "/dbs",
                 "dbs",
                 "",
-                (result) => result.Databases,
+                result => result.Databases,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         };
         return new QueryIterator(this, query, options, cb);
     }
 
-    public queryCollections(databaseLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryCollections(
+        databaseLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(databaseLink);
         const path = this.getPathFromLink(databaseLink, "colls", isNameBased);
         const id = this.getIdFromLink(databaseLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "colls",
                 id,
-                (result) => result.DocumentCollections,
+                result => result.DocumentCollections,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryDocuments(documentsFeedOrDatabaseLink: string, query?: string | SqlQuerySpec, options?: FeedOptions) {
-        const partitionResolver = this.partitionResolvers[documentsFeedOrDatabaseLink];
-        const collectionLinks = (partitionResolver === undefined || partitionResolver === null)
-            ? [documentsFeedOrDatabaseLink]
-            : partitionResolver.resolveForRead(options && options.partitionKey);
+    public queryDocuments(
+        documentsFeedOrDatabaseLink: string,
+        query?: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
+        const partitionResolver = this.partitionResolvers[
+            documentsFeedOrDatabaseLink
+        ];
+        const collectionLinks =
+            partitionResolver === undefined || partitionResolver === null
+                ? [documentsFeedOrDatabaseLink]
+                : partitionResolver.resolveForRead(
+                      options && options.partitionKey
+                  );
         return this.queryDocumentsPrivate(collectionLinks, query, options);
     }
 
-    public queryPartitionKeyRanges(collectionLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryPartitionKeyRanges(
+        collectionLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "pkranges", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "pkranges",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "pkranges",
                 id,
-                (result) => result.PartitionKeyRanges,
+                result => result.PartitionKeyRanges,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
     // NOT USED IN NEW OM
-    public queryAttachments(documentLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryAttachments(
+        documentLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(documentLink);
-        const path = this.getPathFromLink(documentLink, "attachments", isNameBased);
+        const path = this.getPathFromLink(
+            documentLink,
+            "attachments",
+            isNameBased
+        );
         const id = this.getIdFromLink(documentLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "attachments",
                 id,
-                (result) => result.Attachments,
+                result => result.Attachments,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryUsers(databaseLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryUsers(
+        databaseLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(databaseLink);
         const path = this.getPathFromLink(databaseLink, "users", isNameBased);
         const id = this.getIdFromLink(databaseLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "users",
                 id,
-                (result) => result.Users,
+                result => result.Users,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryPermissions(userLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryPermissions(
+        userLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(userLink);
         const path = this.getPathFromLink(userLink, "permissions", isNameBased);
         const id = this.getIdFromLink(userLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "permissions",
                 id,
-                (result) => result.Permissions,
+                result => result.Permissions,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryTriggers(collectionLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryTriggers(
+        collectionLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "triggers", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "triggers",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "triggers",
                 id,
-                (result) => result.Triggers,
+                result => result.Triggers,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryUserDefinedFunctions(collectionLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryUserDefinedFunctions(
+        collectionLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(collectionLink);
         const path = this.getPathFromLink(collectionLink, "udfs", isNameBased);
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "udfs",
                 id,
-                (result) => result.UserDefinedFunctions,
+                result => result.UserDefinedFunctions,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryStoredProcedures(collectionLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryStoredProcedures(
+        collectionLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "sprocs", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "sprocs",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "sprocs",
                 id,
-                (result) => result.StoredProcedures,
+                result => result.StoredProcedures,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
-    public queryConflicts(collectionLink: string, query: string | SqlQuerySpec, options?: FeedOptions) {
+    public queryConflicts(
+        collectionLink: string,
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "conflicts", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "conflicts",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 path,
                 "conflicts",
                 id,
-                (result) => result.Conflicts,
+                result => result.Conflicts,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
     public deleteDatabase(
-        databaseLink: string, options?: RequestOptions, callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        databaseLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         const isNameBased = Base.isLinkNameBased(databaseLink);
         const path = this.getPathFromLink(databaseLink, "", isNameBased);
         const id = this.getIdFromLink(databaseLink, isNameBased);
-        return this.deleteResource(path, "dbs", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "dbs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteCollection(collectionLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteCollection(
+        collectionLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -856,11 +1287,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(collectionLink, "", isNameBased);
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return this.deleteResource(path, "colls", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "colls",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteDocument(documentLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteDocument(
+        documentLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -868,11 +1313,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(documentLink, "", isNameBased);
         const id = this.getIdFromLink(documentLink, isNameBased);
 
-        return this.deleteResource(path, "docs", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "docs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteAttachment(attachmentLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteAttachment(
+        attachmentLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -880,11 +1339,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(attachmentLink, "", isNameBased);
         const id = this.getIdFromLink(attachmentLink, isNameBased);
 
-        return this.deleteResource(path, "attachments", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "attachments",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteUser(userLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteUser(
+        userLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -892,11 +1365,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(userLink, "", isNameBased);
         const id = this.getIdFromLink(userLink, isNameBased);
 
-        return this.deleteResource(path, "users", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "users",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deletePermission(permissionLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deletePermission(
+        permissionLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -904,11 +1391,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(permissionLink, "", isNameBased);
         const id = this.getIdFromLink(permissionLink, isNameBased);
 
-        return this.deleteResource(path, "permissions", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "permissions",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteTrigger(triggerLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteTrigger(
+        triggerLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -916,11 +1417,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(triggerLink, "", isNameBased);
         const id = this.getIdFromLink(triggerLink, isNameBased);
 
-        return this.deleteResource(path, "triggers", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "triggers",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteUserDefinedFunction(udfLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteUserDefinedFunction(
+        udfLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -928,11 +1443,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(udfLink, "", isNameBased);
         const id = this.getIdFromLink(udfLink, isNameBased);
 
-        return this.deleteResource(path, "udfs", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "udfs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteStoredProcedure(sprocLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteStoredProcedure(
+        sprocLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -940,11 +1469,25 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(sprocLink, "", isNameBased);
         const id = this.getIdFromLink(sprocLink, isNameBased);
 
-        return this.deleteResource(path, "sprocs", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "sprocs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public deleteConflict(conflictLink: string, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public deleteConflict(
+        conflictLink: string,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -952,15 +1495,26 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(conflictLink, "", isNameBased);
         const id = this.getIdFromLink(conflictLink, isNameBased);
 
-        return this.deleteResource(path, "conflicts", id, undefined, options, callback);
+        return this.deleteResource(
+            path,
+            "conflicts",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replaceCollection(
         collectionLink: string,
         collection: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -974,23 +1528,44 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(collectionLink, "", isNameBased);
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return this.replace(collection, path, "colls", id, undefined, options, callback);
+        return this.replace(
+            collection,
+            path,
+            "colls",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public async replaceDocument(
         documentLink: string,
         newDocument: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         try {
-            if (options.partitionKey === undefined && options.skipGetPartitionKeyDefinition !== true) {
-                const { result: partitionKeyDefinition } =
-                    await this.getPartitionKeyDefinition(Base.getCollectionLink(documentLink));
-                options.partitionKey = this.extractPartitionKey(newDocument, partitionKeyDefinition);
+            if (
+                options.partitionKey === undefined &&
+                options.skipGetPartitionKeyDefinition !== true
+            ) {
+                const {
+                    result: partitionKeyDefinition
+                } = await this.getPartitionKeyDefinition(
+                    Base.getCollectionLink(documentLink)
+                );
+                options.partitionKey = this.extractPartitionKey(
+                    newDocument,
+                    partitionKeyDefinition
+                );
             }
 
             const err = {};
@@ -1003,15 +1578,30 @@ export class DocumentClient extends DocumentClientBase {
             const path = this.getPathFromLink(documentLink, "", isNameBased);
             const id = this.getIdFromLink(documentLink, isNameBased);
 
-            return this.replace(newDocument, path, "docs", id, undefined, options, callback);
+            return this.replace(
+                newDocument,
+                path,
+                "docs",
+                id,
+                undefined,
+                options,
+                callback
+            );
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
         }
     }
 
     public replaceAttachment(
-        attachmentLink: string, attachment: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        attachmentLink: string,
+        attachment: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1025,12 +1615,28 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(attachmentLink, "", isNameBased);
         const id = this.getIdFromLink(attachmentLink, isNameBased);
 
-        return this.replace(attachment, path, "attachments", id, undefined, options, callback);
+        return this.replace(
+            attachment,
+            path,
+            "attachments",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replaceUser(
-        userLink: string, user: any, options?: RequestOptions, callback?: ResponseCallback<any>) { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        userLink: string,
+        user: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1044,13 +1650,28 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(userLink, "", isNameBased);
         const id = this.getIdFromLink(userLink, isNameBased);
 
-        return this.replace(user, path, "users", id, undefined, options, callback);
+        return this.replace(
+            user,
+            path,
+            "users",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replacePermission(
-        permissionLink: string, permission: any,
-        options?: RequestOptions, callback?: ResponseCallback<any>) { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        permissionLink: string,
+        permission: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1064,12 +1685,28 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(permissionLink, "", isNameBased);
         const id = this.getIdFromLink(permissionLink, isNameBased);
 
-        return this.replace(permission, path, "permissions", id, undefined, options, callback);
+        return this.replace(
+            permission,
+            path,
+            "permissions",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replaceTrigger(
-        triggerLink: string, trigger: any, options?: RequestOptions, callback?: ResponseCallback<any>) { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        triggerLink: string,
+        trigger: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1089,12 +1726,28 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(triggerLink, "", isNameBased);
         const id = this.getIdFromLink(triggerLink, isNameBased);
 
-        return this.replace(trigger, path, "triggers", id, undefined, options, callback);
+        return this.replace(
+            trigger,
+            path,
+            "triggers",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replaceUserDefinedFunction(
-        udfLink: string, udf: any, options?: RequestOptions, callback?: ResponseCallback<any>) { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        udfLink: string,
+        udf: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1114,12 +1767,27 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(udfLink, "", isNameBased);
         const id = this.getIdFromLink(udfLink, isNameBased);
 
-        return this.replace(udf, path, "udfs", id, undefined, options, callback);
+        return this.replace(
+            udf,
+            path,
+            "udfs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public replaceStoredProcedure(
-        sprocLink: string, sproc: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        sprocLink: string,
+        sproc: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1139,27 +1807,52 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(sprocLink, "", isNameBased);
         const id = this.getIdFromLink(sprocLink, isNameBased);
 
-        return this.replace(sproc, path, "sprocs", id, undefined, options, callback);
+        return this.replace(
+            sproc,
+            path,
+            "sprocs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public upsertDocument(
         documentsFeedOrDatabaseLink: string,
         body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const partitionResolver = this.partitionResolvers[documentsFeedOrDatabaseLink];
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const partitionResolver = this.partitionResolvers[
+            documentsFeedOrDatabaseLink
+        ];
 
-        const collectionLink = (partitionResolver === undefined || partitionResolver === null)
-            ? documentsFeedOrDatabaseLink
-            : this.resolveCollectionLinkForCreate(partitionResolver, body);
+        const collectionLink =
+            partitionResolver === undefined || partitionResolver === null
+                ? documentsFeedOrDatabaseLink
+                : this.resolveCollectionLinkForCreate(partitionResolver, body);
 
-        return this.upsertDocumentPrivate(collectionLink, body, options, callback);
+        return this.upsertDocumentPrivate(
+            collectionLink,
+            body,
+            options,
+            callback
+        );
     }
 
     // NOT USED IN NEW OM
     public upsertAttachment(
-        documentLink: string, body: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        documentLink: string,
+        body: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1170,14 +1863,34 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(documentLink);
-        const path = this.getPathFromLink(documentLink, "attachments", isNameBased);
+        const path = this.getPathFromLink(
+            documentLink,
+            "attachments",
+            isNameBased
+        );
         const id = this.getIdFromLink(documentLink, isNameBased);
 
-        return this.upsert(body, path, "attachments", id, undefined, options, callback);
+        return this.upsert(
+            body,
+            path,
+            "attachments",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public upsertUser(databaseLink: string, body: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public upsertUser(
+        databaseLink: string,
+        body: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1191,11 +1904,27 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(databaseLink, "users", isNameBased);
         const id = this.getIdFromLink(databaseLink, isNameBased);
 
-        return this.upsert(body, path, "users", id, undefined, options, callback);
+        return this.upsert(
+            body,
+            path,
+            "users",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
-    public upsertPermission(userLink: string, body: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+    public upsertPermission(
+        userLink: string,
+        body: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1209,12 +1938,27 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(userLink, "permissions", isNameBased);
         const id = this.getIdFromLink(userLink, isNameBased);
 
-        return this.upsert(body, path, "permissions", id, undefined, options, callback);
+        return this.upsert(
+            body,
+            path,
+            "permissions",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public upsertTrigger(
-        collectionLink: string, trigger: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        collectionLink: string,
+        trigger: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1231,15 +1975,34 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "triggers", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "triggers",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return this.upsert(trigger, path, "triggers", id, undefined, options, callback);
+        return this.upsert(
+            trigger,
+            path,
+            "triggers",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     public upsertUserDefinedFunction(
-        collectionLink: string, udf: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        collectionLink: string,
+        udf: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1263,8 +2026,15 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     public upsertStoredProcedure(
-        collectionLink: string, sproc: any, options?: RequestOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        collectionLink: string,
+        sproc: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
@@ -1281,47 +2051,94 @@ export class DocumentClient extends DocumentClientBase {
         }
 
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const path = this.getPathFromLink(collectionLink, "sprocs", isNameBased);
+        const path = this.getPathFromLink(
+            collectionLink,
+            "sprocs",
+            isNameBased
+        );
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return this.upsert(sproc, path, "sprocs", id, undefined, options, callback);
+        return this.upsert(
+            sproc,
+            path,
+            "sprocs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     // NOT USED IN NEW OM
     public upsertAttachmentAndUploadMedia(
-        documentLink: string, readableStream: Readable,
-        options?: MediaOptions, callback?: ResponseCallback<any>) {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        documentLink: string,
+        readableStream: Readable,
+        options?: MediaOptions,
+        callback?: ResponseCallback<any>
+    ) {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         let initialHeaders = Base.extend({}, this.defaultHeaders);
-        initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+        initialHeaders = Base.extend(
+            initialHeaders,
+            options && options.initialHeaders
+        );
 
         // Add required headers slug and content-type.
         if (options.slug) {
             initialHeaders[Constants.HttpHeaders.Slug] = options.slug;
         }
 
-        initialHeaders[Constants.HttpHeaders.ContentType] = options.contentType || Constants.MediaTypes.OctetStream;
+        initialHeaders[Constants.HttpHeaders.ContentType] =
+            options.contentType || Constants.MediaTypes.OctetStream;
 
         const isNameBased = Base.isLinkNameBased(documentLink);
-        const path = this.getPathFromLink(documentLink, "attachments", isNameBased);
+        const path = this.getPathFromLink(
+            documentLink,
+            "attachments",
+            isNameBased
+        );
         const id = this.getIdFromLink(documentLink, isNameBased);
 
-        return this.upsert(readableStream, path, "attachments", id, initialHeaders, options, callback);
+        return this.upsert(
+            readableStream,
+            path,
+            "attachments",
+            id,
+            initialHeaders,
+            options,
+            callback
+        );
     }
 
     // NOT USED IN NEW OM
-    public async readMedia(mediaLink: string, callback?: ResponseCallback<any>) {
+    public async readMedia(
+        mediaLink: string,
+        callback?: ResponseCallback<any>
+    ) {
         const resourceInfo = Base.parseLink(mediaLink);
         const path = mediaLink;
         const initialHeaders = Base.extend({}, this.defaultHeaders);
         initialHeaders[Constants.HttpHeaders.Accept] = Constants.MediaTypes.Any;
-        const attachmentId = Base.getAttachmentIdFromMediaId(resourceInfo.objectBody.id).toLowerCase();
+        const attachmentId = Base.getAttachmentIdFromMediaId(
+            resourceInfo.objectBody.id
+        ).toLowerCase();
 
         try {
-            const reqHeaders = await Base.getHeaders(this, initialHeaders, "get", path, attachmentId, "media", {});
+            const reqHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "get",
+                path,
+                attachmentId,
+                "media",
+                {}
+            );
             // readMedia will always use WriteEndpoint since it's not replicated in readable Geo regions
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
             const results = await this.get(writeEndpoint, path, reqHeaders);
@@ -1333,35 +2150,60 @@ export class DocumentClient extends DocumentClientBase {
 
     // NOT USED IN NEW OM
     public async updateMedia(
-        mediaLink: string, readableStream: Readable,
-        options?: MediaOptions, callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        mediaLink: string,
+        readableStream: Readable,
+        options?: MediaOptions,
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         const defaultHeaders = this.defaultHeaders;
         let initialHeaders = Base.extend({}, defaultHeaders);
-        initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+        initialHeaders = Base.extend(
+            initialHeaders,
+            options && options.initialHeaders
+        );
 
         // Add required headers slug and content-type in case the body is a stream
         if (options.slug) {
             initialHeaders[Constants.HttpHeaders.Slug] = options.slug;
         }
 
-        initialHeaders[Constants.HttpHeaders.ContentType] = options.contentType || Constants.MediaTypes.OctetStream;
+        initialHeaders[Constants.HttpHeaders.ContentType] =
+            options.contentType || Constants.MediaTypes.OctetStream;
 
         initialHeaders[Constants.HttpHeaders.Accept] = Constants.MediaTypes.Any;
 
         const resourceInfo = Base.parseLink(mediaLink);
         const path = "/" + mediaLink;
-        const attachmentId = Base.getAttachmentIdFromMediaId(resourceInfo.objectBody.id).toLowerCase();
+        const attachmentId = Base.getAttachmentIdFromMediaId(
+            resourceInfo.objectBody.id
+        ).toLowerCase();
 
         // updateMedia will use WriteEndpoint since it uses PUT operation
 
         try {
-            const headers = await Base.getHeaders(this, initialHeaders, "put", path, attachmentId, "media", options);
+            const headers = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "put",
+                path,
+                attachmentId,
+                "media",
+                options
+            );
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
-            const results = await this.put(writeEndpoint, path, readableStream, headers);
+            const results = await this.put(
+                writeEndpoint,
+                path,
+                readableStream,
+                headers
+            );
             return Base.ResponseOrCallback(callback, results);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -1369,8 +2211,11 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     public async executeStoredProcedure(
-        sprocLink: string, params?: any[], // TODO: any
-        options?: RequestOptions, callback?: ResponseCallback<any>) {
+        sprocLink: string,
+        params?: any[], // TODO: any
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ) {
         if (!callback && !options) {
             if (typeof params === "function") {
                 callback = params;
@@ -1387,7 +2232,10 @@ export class DocumentClient extends DocumentClientBase {
         const defaultHeaders = this.defaultHeaders;
         let initialHeaders = {};
         initialHeaders = Base.extend(initialHeaders, defaultHeaders);
-        initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+        initialHeaders = Base.extend(
+            initialHeaders,
+            options && options.initialHeaders
+        );
 
         // Accept a single parameter or an array of parameters.
         // Didn't add type annotation for this because we should legacy this behavior
@@ -1399,17 +2247,34 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(sprocLink, "", isNameBased);
         const id = this.getIdFromLink(sprocLink, isNameBased);
         try {
-            const headers = await Base.getHeaders(this, initialHeaders, "post", path, id, "sprocs", options);
+            const headers = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "post",
+                path,
+                id,
+                "sprocs",
+                options
+            );
             // executeStoredProcedure will use WriteEndpoint since it uses POST operation
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
-            const results = await this.post(writeEndpoint, path, params, headers);
+            const results = await this.post(
+                writeEndpoint,
+                path,
+                params,
+                headers
+            );
             return Base.ResponseOrCallback(callback, results);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
         }
     }
 
-    public replaceOffer(offerLink: string, offer: any, callback?: ResponseCallback<any>) {
+    public replaceOffer(
+        offerLink: string,
+        offer: any,
+        callback?: ResponseCallback<any>
+    ) {
         const err = {};
         if (!this.isResourceValid(offer, err)) {
             Base.ThrowOrCallback(callback, err);
@@ -1421,10 +2286,16 @@ export class DocumentClient extends DocumentClientBase {
         return this.replace(offer, path, "offers", id, undefined, {}, callback);
     }
 
-    public async readOffer(offerLink: string, callback?: ResponseCallback<any>) {
+    public async readOffer(
+        offerLink: string,
+        callback?: ResponseCallback<any>
+    ) {
         const path = "/" + offerLink;
         const id = Base.parseLink(offerLink).objectBody.id.toLowerCase();
-        return Base.ResponseOrCallback(callback, await this.read(path, "offers", id, undefined, {}));
+        return Base.ResponseOrCallback(
+            callback,
+            await this.read(path, "offers", id, undefined, {})
+        );
     }
 
     public readOffers(options?: FeedOptions) {
@@ -1432,36 +2303,54 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     public queryOffers(query: string | SqlQuerySpec, options?: FeedOptions) {
-        return new QueryIterator(this, query, options, (innerOptions) => {
+        return new QueryIterator(this, query, options, innerOptions => {
             return this.queryFeed(
                 this,
                 "/offers",
                 "offers",
                 "",
-                (result) => result.Offers,
+                result => result.Offers,
                 (parent, body) => body,
                 query,
-                innerOptions);
+                innerOptions
+            );
         });
     }
 
     /** @ignore */
     public async createDocumentPrivate(
-        collectionLink: string, body: any,
-        options?: RequestOptions, callback?: ResponseCallback<any>): Promise<Response<any>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        collectionLink: string,
+        body: any,
+        options?: RequestOptions,
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         try {
-            if (options.partitionKey === undefined && options.skipGetPartitionKeyDefinition !== true) {
-                const { result: partitionKeyDefinition } = await this.getPartitionKeyDefinition(collectionLink);
-                options.partitionKey = this.extractPartitionKey(body, partitionKeyDefinition);
+            if (
+                options.partitionKey === undefined &&
+                options.skipGetPartitionKeyDefinition !== true
+            ) {
+                const {
+                    result: partitionKeyDefinition
+                } = await this.getPartitionKeyDefinition(collectionLink);
+                options.partitionKey = this.extractPartitionKey(
+                    body,
+                    partitionKeyDefinition
+                );
             }
 
             // Generate random document id if the id is missing in the payload and
             // options.disableAutomaticIdGeneration != true
-            if ((body.id === undefined || body.id === "") && !options.disableAutomaticIdGeneration) {
+            if (
+                (body.id === undefined || body.id === "") &&
+                !options.disableAutomaticIdGeneration
+            ) {
                 body.id = Base.generateGuidId();
             }
 
@@ -1472,10 +2361,21 @@ export class DocumentClient extends DocumentClientBase {
             }
 
             const isNameBased = Base.isLinkNameBased(collectionLink);
-            const path = this.getPathFromLink(collectionLink, "docs", isNameBased);
+            const path = this.getPathFromLink(
+                collectionLink,
+                "docs",
+                isNameBased
+            );
             const id = this.getIdFromLink(collectionLink, isNameBased);
 
-            const results = await this.create(body, path, "docs", id, undefined, options);
+            const results = await this.create(
+                body,
+                path,
+                "docs",
+                id,
+                undefined,
+                options
+            );
             return Base.ResponseOrCallback(callback, results);
         } catch (err) {
             Base.ThrowOrCallback(callback, err);
@@ -1484,21 +2384,38 @@ export class DocumentClient extends DocumentClientBase {
 
     /** @ignore */
     private async upsertDocumentPrivate(
-        collectionLink: string, body: any,
+        collectionLink: string,
+        body: any,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> { // TODO: any
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
+        // TODO: any
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
-        if (options.partitionKey === undefined && options.skipGetPartitionKeyDefinition !== true) {
-            const { result: partitionKeyDefinition } = await this.getPartitionKeyDefinition(collectionLink);
-            options.partitionKey = this.extractPartitionKey(body, partitionKeyDefinition);
+        if (
+            options.partitionKey === undefined &&
+            options.skipGetPartitionKeyDefinition !== true
+        ) {
+            const {
+                result: partitionKeyDefinition
+            } = await this.getPartitionKeyDefinition(collectionLink);
+            options.partitionKey = this.extractPartitionKey(
+                body,
+                partitionKeyDefinition
+            );
         }
 
         // Generate random document id if the id is missing in the payload and
         // options.disableAutomaticIdGeneration != true
-        if ((body.id === undefined || body.id === "") && !options.disableAutomaticIdGeneration) {
+        if (
+            (body.id === undefined || body.id === "") &&
+            !options.disableAutomaticIdGeneration
+        ) {
             body.id = Base.generateGuidId();
         }
 
@@ -1512,73 +2429,170 @@ export class DocumentClient extends DocumentClientBase {
         const path = this.getPathFromLink(collectionLink, "docs", isNameBased);
         const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return this.upsert(body, path, "docs", id, undefined, options, callback);
+        return this.upsert(
+            body,
+            path,
+            "docs",
+            id,
+            undefined,
+            options,
+            callback
+        );
     }
 
     /** @ignore */
-    public queryDocumentsPrivate(collectionLinks: string[], query: string | SqlQuerySpec, options?: FeedOptions) {
-        const fetchFunctions = collectionLinks.map<FetchFunctionCallback>((collectionLink) => {
-            const isNameBased = Base.isLinkNameBased(collectionLink);
-            const path = this.getPathFromLink(collectionLink, "docs", isNameBased);
-            const id = this.getIdFromLink(collectionLink, isNameBased);
-
-            return (innerOptions: FeedOptions) => {
-                return this.queryFeed(
-                    this,
-                    path,
+    public queryDocumentsPrivate(
+        collectionLinks: string[],
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ) {
+        const fetchFunctions = collectionLinks.map<FetchFunctionCallback>(
+            collectionLink => {
+                const isNameBased = Base.isLinkNameBased(collectionLink);
+                const path = this.getPathFromLink(
+                    collectionLink,
                     "docs",
-                    id,
-                    (result) => result ? result.Documents : [],
-                    (parent, body) => body,
-                    query,
-                    innerOptions);
-            };
-        });
+                    isNameBased
+                );
+                const id = this.getIdFromLink(collectionLink, isNameBased);
 
-        return new QueryIterator(this, query, options, fetchFunctions, collectionLinks);
+                return (innerOptions: FeedOptions) => {
+                    return this.queryFeed(
+                        this,
+                        path,
+                        "docs",
+                        id,
+                        result => (result ? result.Documents : []),
+                        (parent, body) => body,
+                        query,
+                        innerOptions
+                    );
+                };
+            }
+        );
+
+        return new QueryIterator(
+            this,
+            query,
+            options,
+            fetchFunctions,
+            collectionLinks
+        );
     }
 
     /** @ignore */
     public async create<T>(
-        body: T, path: string, type: string, id: string,
-        initialHeaders: IHeaders, options?: RequestOptions, callback?: ResponseCallback<T>): Promise<Response<T>> {
+        body: T,
+        path: string,
+        type: string,
+        id: string,
+        initialHeaders: IHeaders,
+        options?: RequestOptions,
+        callback?: ResponseCallback<T>
+    ): Promise<Response<T>> {
         try {
-            initialHeaders = initialHeaders || Base.extend({}, this.defaultHeaders);
-            initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
-            const requestHeaders = await Base.getHeaders(this, initialHeaders, "post", path, id, type, options);
+            initialHeaders =
+                initialHeaders || Base.extend({}, this.defaultHeaders);
+            initialHeaders = Base.extend(
+                initialHeaders,
+                options && options.initialHeaders
+            );
+            const requestHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "post",
+                path,
+                id,
+                type,
+                options
+            );
 
             // create will use WriteEndpoint since it uses POST operation
             this.applySessionToken(path, requestHeaders);
 
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
-            const { result, headers: resHeaders } = await this.post(writeEndpoint, path, body, requestHeaders);
-            this.captureSessionToken(undefined, path, Constants.OperationTypes.Create, resHeaders);
-            return Base.ResponseOrCallback(callback, { result, headers: resHeaders });
+            const { result, headers: resHeaders } = await this.post(
+                writeEndpoint,
+                path,
+                body,
+                requestHeaders
+            );
+            this.captureSessionToken(
+                undefined,
+                path,
+                Constants.OperationTypes.Create,
+                resHeaders
+            );
+            return Base.ResponseOrCallback(callback, {
+                result,
+                headers: resHeaders
+            });
         } catch (err) {
-            this.captureSessionToken(err, path, Constants.OperationTypes.Upsert, (err as ErrorResponse).headers);
+            this.captureSessionToken(
+                err,
+                path,
+                Constants.OperationTypes.Upsert,
+                (err as ErrorResponse).headers
+            );
             Base.ThrowOrCallback(callback, err);
         }
     }
 
     /** @ignore */
     public async upsert<T>(
-        body: T, path: string, type: string, id: string,
-        initialHeaders: IHeaders, options?: RequestOptions, callback?: ResponseCallback<T>): Promise<Response<T>> {
+        body: T,
+        path: string,
+        type: string,
+        id: string,
+        initialHeaders: IHeaders,
+        options?: RequestOptions,
+        callback?: ResponseCallback<T>
+    ): Promise<Response<T>> {
         try {
-            initialHeaders = initialHeaders || Base.extend({}, this.defaultHeaders);
-            initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
-            const requestHeaders = await Base.getHeaders(this, initialHeaders, "post", path, id, type, options);
+            initialHeaders =
+                initialHeaders || Base.extend({}, this.defaultHeaders);
+            initialHeaders = Base.extend(
+                initialHeaders,
+                options && options.initialHeaders
+            );
+            const requestHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "post",
+                path,
+                id,
+                type,
+                options
+            );
 
             this.setIsUpsertHeader(requestHeaders);
             this.applySessionToken(path, requestHeaders);
 
             // upsert will use WriteEndpoint since it uses POST operation
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
-            const { result, headers: resHeaders } = await this.post(writeEndpoint, path, body, requestHeaders);
-            this.captureSessionToken(undefined, path, Constants.OperationTypes.Upsert, resHeaders);
-            return Base.ResponseOrCallback(callback, { result, headers: resHeaders });
+            const { result, headers: resHeaders } = await this.post(
+                writeEndpoint,
+                path,
+                body,
+                requestHeaders
+            );
+            this.captureSessionToken(
+                undefined,
+                path,
+                Constants.OperationTypes.Upsert,
+                resHeaders
+            );
+            return Base.ResponseOrCallback(callback, {
+                result,
+                headers: resHeaders
+            });
         } catch (err) {
-            this.captureSessionToken(err, path, Constants.OperationTypes.Upsert, (err as ErrorResponse).headers);
+            this.captureSessionToken(
+                err,
+                path,
+                Constants.OperationTypes.Upsert,
+                (err as ErrorResponse).headers
+            );
             Base.ThrowOrCallback(callback, err);
         }
     }
@@ -1591,20 +2605,48 @@ export class DocumentClient extends DocumentClientBase {
         id: string,
         initialHeaders: IHeaders,
         options?: RequestOptions,
-        callback?: ResponseCallback<T>): Promise<Response<T>> {
+        callback?: ResponseCallback<T>
+    ): Promise<Response<T>> {
         try {
-            initialHeaders = initialHeaders || Base.extend({}, this.defaultHeaders);
-            initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
-            const reqHeaders = await Base.getHeaders(this, initialHeaders, "put", path, id, type, options);
+            initialHeaders =
+                initialHeaders || Base.extend({}, this.defaultHeaders);
+            initialHeaders = Base.extend(
+                initialHeaders,
+                options && options.initialHeaders
+            );
+            const reqHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "put",
+                path,
+                id,
+                type,
+                options
+            );
             this.applySessionToken(path, reqHeaders);
 
             // replace will use WriteEndpoint since it uses PUT operation
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
-            const result = await this.put(writeEndpoint, path, resource, reqHeaders);
-            this.captureSessionToken(undefined, path, Constants.OperationTypes.Replace, result.headers);
+            const result = await this.put(
+                writeEndpoint,
+                path,
+                resource,
+                reqHeaders
+            );
+            this.captureSessionToken(
+                undefined,
+                path,
+                Constants.OperationTypes.Replace,
+                result.headers
+            );
             return Base.ResponseOrCallback(callback, result);
         } catch (err) {
-            this.captureSessionToken(err, path, Constants.OperationTypes.Upsert, (err as ErrorResponse).headers);
+            this.captureSessionToken(
+                err,
+                path,
+                Constants.OperationTypes.Upsert,
+                (err as ErrorResponse).headers
+            );
             Base.ThrowOrCallback(callback, err);
         }
     }
@@ -1615,27 +2657,54 @@ export class DocumentClient extends DocumentClientBase {
         type: string,
         id: string,
         initialHeaders: IHeaders,
-        options?: RequestOptions): Promise<Response<T>> {
+        options?: RequestOptions
+    ): Promise<Response<T>> {
         initialHeaders = initialHeaders || Base.extend({}, this.defaultHeaders);
-        initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
+        initialHeaders = Base.extend(
+            initialHeaders,
+            options && options.initialHeaders
+        );
 
         try {
-            const requestHeaders = await Base.getHeaders(this, initialHeaders, "get", path, id, type, options);
+            const requestHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "get",
+                path,
+                id,
+                type,
+                options
+            );
             this.applySessionToken(path, requestHeaders);
 
-            const request: any = { // TODO: any
+            const request: any = {
+                // TODO: any
                 path,
                 operationType: Constants.OperationTypes.Read,
                 client: this,
-                endpointOverride: null,
+                endpointOverride: null
             };
             // read will use ReadEndpoint since it uses GET operation
             const readEndpoint = await this._globalEndpointManager.getReadEndpoint();
-            const response = await this.get(readEndpoint, request, requestHeaders);
-            this.captureSessionToken(undefined, path, Constants.OperationTypes.Read, response.headers);
+            const response = await this.get(
+                readEndpoint,
+                request,
+                requestHeaders
+            );
+            this.captureSessionToken(
+                undefined,
+                path,
+                Constants.OperationTypes.Read,
+                response.headers
+            );
             return response;
         } catch (err) {
-            this.captureSessionToken(err, path, Constants.OperationTypes.Upsert, (err as ErrorResponse).headers);
+            this.captureSessionToken(
+                err,
+                path,
+                Constants.OperationTypes.Upsert,
+                (err as ErrorResponse).headers
+            );
             throw err;
         }
     }
@@ -1647,25 +2716,47 @@ export class DocumentClient extends DocumentClientBase {
         id: string,
         initialHeaders: IHeaders,
         options?: RequestOptions,
-        callback?: ResponseCallback<any>): Promise<Response<any>> {
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
         try {
-            initialHeaders = initialHeaders || Base.extend({}, this.defaultHeaders);
-            initialHeaders = Base.extend(initialHeaders, options && options.initialHeaders);
-            const reqHeaders = await Base.getHeaders(this, initialHeaders, "delete", path, id, type, options);
+            initialHeaders =
+                initialHeaders || Base.extend({}, this.defaultHeaders);
+            initialHeaders = Base.extend(
+                initialHeaders,
+                options && options.initialHeaders
+            );
+            const reqHeaders = await Base.getHeaders(
+                this,
+                initialHeaders,
+                "delete",
+                path,
+                id,
+                type,
+                options
+            );
 
             this.applySessionToken(path, reqHeaders);
             // deleteResource will use WriteEndpoint since it uses DELETE operation
             const writeEndpoint = await this._globalEndpointManager.getWriteEndpoint();
             const response = await this.delete(writeEndpoint, path, reqHeaders);
             if (Base.parseLink(path).type !== "colls") {
-                this.captureSessionToken(undefined, path, Constants.OperationTypes.Delete, response.headers);
+                this.captureSessionToken(
+                    undefined,
+                    path,
+                    Constants.OperationTypes.Delete,
+                    response.headers
+                );
             } else {
                 this.clearSessionToken(path);
             }
             return Base.ResponseOrCallback(callback, response);
-
         } catch (err) {
-            this.captureSessionToken(err, path, Constants.OperationTypes.Upsert, (err as ErrorResponse).headers);
+            this.captureSessionToken(
+                err,
+                path,
+                Constants.OperationTypes.Upsert,
+                (err as ErrorResponse).headers
+            );
             Base.ThrowOrCallback(callback, err);
         }
     }
@@ -1678,31 +2769,47 @@ export class DocumentClient extends DocumentClientBase {
      * The arguments to the callback are(in order): error, partitionKeyDefinition, response object and response headers
      */
     public async getPartitionKeyDefinition(
-        collectionLink: string, callback?: ResponseCallback<any>): Promise<Response<any>> {
+        collectionLink: string,
+        callback?: ResponseCallback<any>
+    ): Promise<Response<any>> {
         // $ISSUE-felixfan-2016-03-17: Make name based path and link based path use the same key
         // $ISSUE-felixfan-2016-03-17: Refresh partitionKeyDefinitionCache when necessary
         if (collectionLink in this.partitionKeyDefinitionCache) {
-            return Base.ResponseOrCallback(callback, { result: this.partitionKeyDefinitionCache[collectionLink] });
+            return Base.ResponseOrCallback(callback, {
+                result: this.partitionKeyDefinitionCache[collectionLink]
+            });
         }
 
         try {
-            const { result: collection, headers } = await this.readCollection(collectionLink);
-            return Base.ResponseOrCallback(callback,
-                { result: this.partitionKeyDefinitionCache[collectionLink], headers });
+            const { result: collection, headers } = await this.readCollection(
+                collectionLink
+            );
+            return Base.ResponseOrCallback(callback, {
+                result: this.partitionKeyDefinitionCache[collectionLink],
+                headers
+            });
         } catch (err) {
             throw err;
         }
     }
 
-    public extractPartitionKey(document: any, partitionKeyDefinition: any): any { // TODO: any
-        if (partitionKeyDefinition && partitionKeyDefinition.paths && partitionKeyDefinition.paths.length > 0) {
+    public extractPartitionKey(
+        document: any,
+        partitionKeyDefinition: any
+    ): any {
+        // TODO: any
+        if (
+            partitionKeyDefinition &&
+            partitionKeyDefinition.paths &&
+            partitionKeyDefinition.paths.length > 0
+        ) {
             const partitionKey: PartitionKey[] = [];
             partitionKeyDefinition.paths.forEach((path: string) => {
                 const pathParts = Base.parsePath(path);
 
                 let obj = document;
                 for (const part of pathParts) {
-                    if (!((typeof obj === "object") && (part in obj))) {
+                    if (!(typeof obj === "object" && part in obj)) {
                         obj = {};
                         break;
                     }
@@ -1721,17 +2828,20 @@ export class DocumentClient extends DocumentClientBase {
 
     // TODO: chrande made this public to maintain test coverage, but not really happy about it
     /** @ignore */
-    public isResourceValid(resource: any, err: any) { // TODO: any TODO: code smell
+    public isResourceValid(resource: any, err: any) {
+        // TODO: any TODO: code smell
         if (resource.id) {
             if (typeof resource.id !== "string") {
                 err.message = "Id must be a string.";
                 return false;
             }
 
-            if (resource.id.indexOf("/") !== -1
-                || resource.id.indexOf("\\") !== -1
-                || resource.id.indexOf("?") !== -1
-                || resource.id.indexOf("#") !== -1) {
+            if (
+                resource.id.indexOf("/") !== -1 ||
+                resource.id.indexOf("\\") !== -1 ||
+                resource.id.indexOf("?") !== -1 ||
+                resource.id.indexOf("#") !== -1
+            ) {
                 err.message = "Id contains illegal chars.";
                 return false;
             }
@@ -1744,7 +2854,11 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     /** @ignore */
-    public resolveCollectionLinkForCreate(partitionResolver: any, document: Document) { // TODO: any
+    public resolveCollectionLinkForCreate(
+        partitionResolver: any,
+        document: Document
+    ) {
+        // TODO: any
         const validation = this.isPartitionResolverValid(partitionResolver);
         if (!validation.valid) {
             throw validation.error;
@@ -1755,46 +2869,63 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     /** @ignore */
-    public isPartitionResolverValid(partionResolver: any) { // TODO: any
+    public isPartitionResolverValid(partionResolver: any) {
+        // TODO: any
         if (partionResolver === null || partionResolver === undefined) {
             return {
                 valid: false,
-                error: new Error("The partition resolver is null or undefined"),
+                error: new Error("The partition resolver is null or undefined")
             };
         }
 
         // TODO: code smell
-        let validation = this.isPartitionResolveFunctionDefined(partionResolver, "getPartitionKey");
+        let validation = this.isPartitionResolveFunctionDefined(
+            partionResolver,
+            "getPartitionKey"
+        );
         if (!validation.valid) {
             return validation;
         }
-        validation = this.isPartitionResolveFunctionDefined(partionResolver, "resolveForCreate");
+        validation = this.isPartitionResolveFunctionDefined(
+            partionResolver,
+            "resolveForCreate"
+        );
         if (!validation.valid) {
             return validation;
         }
-        validation = this.isPartitionResolveFunctionDefined(partionResolver, "resolveForRead");
+        validation = this.isPartitionResolveFunctionDefined(
+            partionResolver,
+            "resolveForRead"
+        );
         return validation;
     }
 
     /** @ignore */
-    public isPartitionResolveFunctionDefined(partionResolver: any, functionName: string) { // TODO: any
+    public isPartitionResolveFunctionDefined(
+        partionResolver: any,
+        functionName: string
+    ) {
+        // TODO: any
         if (partionResolver === null || partionResolver === undefined) {
             return {
                 valid: false,
-                error: new Error("The partition resolver is null or undefined"),
+                error: new Error("The partition resolver is null or undefined")
             };
         }
 
         if (typeof partionResolver[functionName] === "function") {
             return {
-                valid: true,
+                valid: true
             };
         } else {
             return {
                 valid: false,
                 error: new Error(
                     `The partition resolver does not implement method ${functionName}. \
-                    The type of ${functionName} is \"${typeof partionResolver[functionName]}\"`),
+                    The type of ${functionName} is \"${typeof partionResolver[
+                        functionName
+                    ]}\"`
+                )
             };
         }
     }
@@ -1810,7 +2941,11 @@ export class DocumentClient extends DocumentClientBase {
     }
 
     /** @ignore */
-    public getPathFromLink(resourceLink: string, resourceType: string, isNameBased: boolean) {
+    public getPathFromLink(
+        resourceLink: string,
+        resourceType: string,
+        isNameBased: boolean
+    ) {
         if (isNameBased) {
             resourceLink = Base._trimSlashes(resourceLink);
             if (resourceType) {
@@ -1830,12 +2965,15 @@ export class DocumentClient extends DocumentClientBase {
     /** @ignore */
     public setIsUpsertHeader(headers: IHeaders) {
         if (headers === undefined || headers === null) {
-            throw new Error('The "headers" parameter must not be null or undefined');
+            throw new Error(
+                'The "headers" parameter must not be null or undefined'
+            );
         }
 
         if (!(headers instanceof Object)) {
             throw new Error(
-                `The "headers" parameter must be an instance of "Object". Actual type is: "${typeof headers}".`);
+                `The "headers" parameter must be an instance of "Object". Actual type is: "${typeof headers}".`
+            );
         }
 
         (headers as IHeaders)[Constants.HttpHeaders.IsUpsert] = true;
@@ -1869,26 +3007,39 @@ export class DocumentClient extends DocumentClientBase {
             return;
         }
 
-        const sessionConsistency = reqHeaders[Constants.HttpHeaders.ConsistencyLevel];
+        const sessionConsistency =
+            reqHeaders[Constants.HttpHeaders.ConsistencyLevel];
         if (!sessionConsistency) {
             return;
         }
 
         if (request["resourceAddress"]) {
-            const sessionToken = this.sessionContainer.resolveGlobalSessionToken(request);
+            const sessionToken = this.sessionContainer.resolveGlobalSessionToken(
+                request
+            );
             if (sessionToken !== "") {
                 reqHeaders[Constants.HttpHeaders.SessionToken] = sessionToken;
             }
         }
     }
 
-    public captureSessionToken(err: ErrorResponse, path: string, opType: string, resHeaders: IHeaders) {
+    public captureSessionToken(
+        err: ErrorResponse,
+        path: string,
+        opType: string,
+        resHeaders: IHeaders
+    ) {
         const request: any = this.getSessionParams(path); // TODO: any request
         request.operationType = opType;
-        if (!err ||
-            ((!this.isMasterResource(request.resourceType)) &&
-                (err.code === StatusCodes.PreconditionFailed || err.code === StatusCodes.Conflict ||
-                    (err.code === StatusCodes.NotFound && err.substatus !== SubStatusCodes.ReadSessionNotAvailable)))) {
+        if (
+            !err ||
+            (!this.isMasterResource(request.resourceType) &&
+                (err.code === StatusCodes.PreconditionFailed ||
+                    err.code === StatusCodes.Conflict ||
+                    (err.code === StatusCodes.NotFound &&
+                        err.substatus !==
+                            SubStatusCodes.ReadSessionNotAvailable)))
+        ) {
             this.sessionContainer.setSessionToken(request, resHeaders);
         }
     }
@@ -1914,19 +3065,21 @@ export class DocumentClient extends DocumentClientBase {
             isNameBased,
             resourceId,
             resourceAddress,
-            resourceType,
+            resourceType
         };
     }
 
     public isMasterResource(resourceType: string): boolean {
-        if (resourceType === Constants.Path.OffersPathSegment ||
+        if (
+            resourceType === Constants.Path.OffersPathSegment ||
             resourceType === Constants.Path.DatabasesPathSegment ||
             resourceType === Constants.Path.UsersPathSegment ||
             resourceType === Constants.Path.PermissionsPathSegment ||
             resourceType === Constants.Path.TopologyPathSegment ||
             resourceType === Constants.Path.DatabaseAccountPathSegment ||
             resourceType === Constants.Path.PartitionKeyRangesPathSegment ||
-            resourceType === Constants.Path.CollectionsPathSegment) {
+            resourceType === Constants.Path.CollectionsPathSegment
+        ) {
             return true;
         }
 

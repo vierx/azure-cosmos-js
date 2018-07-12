@@ -7,7 +7,7 @@ export class QueryMetricsUtils {
             throw new Error("delimitedString is null or undefined");
         }
 
-        const metrics: {[key: string]: any} = {};
+        const metrics: { [key: string]: any } = {};
 
         const headerAttributes = delimitedString.split(";");
         for (const attribute of headerAttributes) {
@@ -26,7 +26,10 @@ export class QueryMetricsUtils {
         return metrics;
     }
 
-    public static timeSpanFromMetrics(metrics: { [key: string]: any } /* TODO: any */, key: string) {
+    public static timeSpanFromMetrics(
+        metrics: { [key: string]: any } /* TODO: any */,
+        key: string
+    ) {
         if (key in metrics) {
             return TimeSpan.fromMilliseconds(metrics[key]);
         }

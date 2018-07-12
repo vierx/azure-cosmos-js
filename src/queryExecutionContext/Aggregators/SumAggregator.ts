@@ -1,7 +1,6 @@
 import { IAggregator } from "./IAggregator";
 
 export class SumAggregator implements IAggregator<number> {
-
     public sum: number;
     /**
      * Add the provided item to aggregation result.

@@ -10,7 +10,7 @@ export class OrderByEndpointComponent implements IEndpointComponent {
      * @param {object} executionContext              - Underlying Execution Context
      * @ignore
      */
-    constructor(private executionContext: IExecutionContext) { }
+    constructor(private executionContext: IExecutionContext) {}
     /**
      * Execute a provided function on the next element in the OrderByEndpointComponent.
      * @memberof OrderByEndpointComponent
@@ -20,8 +20,14 @@ export class OrderByEndpointComponent implements IEndpointComponent {
      */
     public async nextItem(): Promise<Response<any>> {
         try {
-            const {result: item, headers} = await this.executionContext.nextItem();
-            return {result: item !== undefined ? item.payload : undefined, headers };
+            const {
+                result: item,
+                headers
+            } = await this.executionContext.nextItem();
+            return {
+                result: item !== undefined ? item.payload : undefined,
+                headers
+            };
         } catch (err) {
             throw err;
         }
@@ -36,8 +42,14 @@ export class OrderByEndpointComponent implements IEndpointComponent {
      */
     public async current(): Promise<Response<any>> {
         try {
-            const {result: item, headers} = await this.executionContext.current();
-            return {result: item !== undefined ? item.payload : undefined, headers };
+            const {
+                result: item,
+                headers
+            } = await this.executionContext.current();
+            return {
+                result: item !== undefined ? item.payload : undefined,
+                headers
+            };
         } catch (err) {
             throw err;
         }

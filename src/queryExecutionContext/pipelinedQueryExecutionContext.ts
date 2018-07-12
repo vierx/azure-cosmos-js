@@ -6,7 +6,7 @@ import {
     OrderByQueryExecutionContext,
     ParallelQueryExecutionContext,
     PartitionedQueryExecutionContextInfo,
-    PartitionedQueryExecutionContextInfoParser,
+    PartitionedQueryExecutionContextInfoParser
 } from ".";
 import { DocumentClient } from "../documentclient";
 import { Response } from "../request/request";
@@ -14,7 +14,7 @@ import {
     AggregateEndpointComponent,
     IEndpointComponent,
     OrderByEndpointComponent,
-    TopEndpointComponent,
+    TopEndpointComponent
 } from "./EndpointComponent";
 
 export class PipelinedQueryExecutionContext implements IExecutionContext {
@@ -39,7 +39,8 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
         private collectionLink: string,
         private query: any, // TODO: any query
         private options: any, // TODO: any options
-        private partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo) {
+        private partitionedQueryExecutionInfo: PartitionedQueryExecutionContextInfo
+    ) {
         this.endpoint = null;
         this.pageSize = options["maxItemCount"];
         if (this.pageSize === undefined) {
@@ -47,7 +48,9 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
         }
 
         // Pick between parallel vs order by execution context
-        const sortOrders = PartitionedQueryExecutionContextInfoParser.parseOrderBy(partitionedQueryExecutionInfo);
+        const sortOrders = PartitionedQueryExecutionContextInfoParser.parseOrderBy(
+            partitionedQueryExecutionInfo
+        );
         if (Array.isArray(sortOrders) && sortOrders.length > 0) {
             // Need to wrap orderby execution context in endpoint component, since the data is nested as a \
             //      "payload" property.
@@ -57,25 +60,35 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
                     this.collectionLink,
                     this.query,
                     this.options,
-                    this.partitionedQueryExecutionInfo));
+                    this.partitionedQueryExecutionInfo
+                )
+            );
         } else {
             this.endpoint = new ParallelQueryExecutionContext(
                 this.documentclient,
                 this.collectionLink,
                 this.query,
                 this.options,
-                this.partitionedQueryExecutionInfo);
+                this.partitionedQueryExecutionInfo
+            );
         }
 
         // If aggregate then add that to the pipeline
-        const aggregates = PartitionedQueryExecutionContextInfoParser.parseAggregates(partitionedQueryExecutionInfo);
+        const aggregates = PartitionedQueryExecutionContextInfoParser.parseAggregates(
+            partitionedQueryExecutionInfo
+        );
         if (Array.isArray(aggregates) && aggregates.length > 0) {
-            this.endpoint = new AggregateEndpointComponent(this.endpoint, aggregates);
+            this.endpoint = new AggregateEndpointComponent(
+                this.endpoint,
+                aggregates
+            );
         }
 
         // If top then add that to the pipeline
-        const top = PartitionedQueryExecutionContextInfoParser.parseTop(partitionedQueryExecutionInfo);
-        if (typeof (top) === "number") {
+        const top = PartitionedQueryExecutionContextInfoParser.parseTop(
+            partitionedQueryExecutionInfo
+        );
+        if (typeof top === "number") {
             this.endpoint = new TopEndpointComponent(this.endpoint, top);
         }
     }
@@ -107,17 +120,20 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
 
     private async _fetchMoreImplementation(): Promise<Response<any>> {
         try {
-            const {result: item, headers} = await this.endpoint.nextItem();
+            const { result: item, headers } = await this.endpoint.nextItem();
             HeaderUtils.mergeHeaders(this.fetchMoreRespHeaders, headers);
             if (item === undefined) {
                 // no more results
                 if (this.fetchBuffer.length === 0) {
-                    return {result: undefined, headers: this.fetchMoreRespHeaders};
+                    return {
+                        result: undefined,
+                        headers: this.fetchMoreRespHeaders
+                    };
                 } else {
                     // Just give what we have
                     const temp = this.fetchBuffer;
                     this.fetchBuffer = [];
-                    return {result: temp, headers: this.fetchMoreRespHeaders};
+                    return { result: temp, headers: this.fetchMoreRespHeaders };
                 }
             } else {
                 // append the result
@@ -126,7 +142,7 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
                     // fetched enough results
                     const temp = this.fetchBuffer.slice(0, this.pageSize);
                     this.fetchBuffer = this.fetchBuffer.splice(this.pageSize);
-                    return {result: temp, headers: this.fetchMoreRespHeaders};
+                    return { result: temp, headers: this.fetchMoreRespHeaders };
                 } else {
                     // recursively fetch more
                     // TODO: is recursion a good idea?
@@ -137,7 +153,7 @@ export class PipelinedQueryExecutionContext implements IExecutionContext {
             HeaderUtils.mergeHeaders(this.fetchMoreRespHeaders, err.headers);
             err.headers = this.fetchMoreRespHeaders;
             if (err) {
-               throw err;
+                throw err;
             }
         }
     }

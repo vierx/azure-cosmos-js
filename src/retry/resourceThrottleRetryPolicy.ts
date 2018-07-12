@@ -29,7 +29,8 @@ export class ResourceThrottleRetryPolicy {
     constructor(
         private maxRetryAttemptCount: number,
         private fixedRetryIntervalInMilliseconds: number,
-        maxWaitTimeInSeconds: number) {
+        maxWaitTimeInSeconds: number
+    ) {
         this.maxWaitTimeInMilliseconds = maxWaitTimeInSeconds * 1000;
         this.currentRetryAttemptCount = 0;
         this.cummulativeWaitTimeinMilliseconds = 0;
@@ -38,7 +39,8 @@ export class ResourceThrottleRetryPolicy {
      * Determines whether the request should be retried or not.
      * @param {object} err - Error returned by the request.
      */
-    public async shouldRetry(err: ErrorResponse): Promise<boolean> { // TODO: any custom error object
+    public async shouldRetry(err: ErrorResponse): Promise<boolean> {
+        // TODO: any custom error object
         if (err) {
             if (this.currentRetryAttemptCount < this.maxRetryAttemptCount) {
                 this.currentRetryAttemptCount++;
@@ -47,10 +49,14 @@ export class ResourceThrottleRetryPolicy {
                 if (this.fixedRetryIntervalInMilliseconds) {
                     this.retryAfterInMilliseconds = this.fixedRetryIntervalInMilliseconds;
                 } else if (err.retryAfterInMilliseconds) {
-                    this.retryAfterInMilliseconds = err.retryAfterInMilliseconds;
+                    this.retryAfterInMilliseconds =
+                        err.retryAfterInMilliseconds;
                 }
 
-                if (this.cummulativeWaitTimeinMilliseconds < this.maxWaitTimeInMilliseconds) {
+                if (
+                    this.cummulativeWaitTimeinMilliseconds <
+                    this.maxWaitTimeInMilliseconds
+                ) {
                     this.cummulativeWaitTimeinMilliseconds += this.retryAfterInMilliseconds;
                     return true;
                 }

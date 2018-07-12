@@ -10,7 +10,10 @@ export class Databases {
     constructor(private readonly client: CosmosClient) {}
 
     // TODO: DatabaseResponse for QueryIterator?
-    public query(query: string | SqlQuerySpec, options?: FeedOptions): QueryIterator<DatabaseDefinition> {
+    public query(
+        query: string | SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<DatabaseDefinition> {
         return this.client.documentClient.queryDatabases(query, options);
     }
 
@@ -27,10 +30,21 @@ export class Databases {
      *
      * @param body              - A json object that represents The database to be created.
      */
-    public async create(body: DatabaseDefinition, options?: RequestOptions): Promise<DatabaseResponse> {
-        const response = await this.client.documentClient.createDatabase(body, options);
+    public async create(
+        body: DatabaseDefinition,
+        options?: RequestOptions
+    ): Promise<DatabaseResponse> {
+        const response = await this.client.documentClient.createDatabase(
+            body,
+            options
+        );
         const ref = new Database(this.client, body.id);
-        return { body: response.result, headers: response.headers, ref, database: ref };
+        return {
+            body: response.result,
+            headers: response.headers,
+            ref,
+            database: ref
+        };
     }
 
     // TODO: DatabaseResponse for QueryIterator?

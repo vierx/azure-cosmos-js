@@ -12,12 +12,24 @@ export class StoredProcedures {
         this.client = this.container.database.client;
     }
 
-    public query(query: SqlQuerySpec, options?: FeedOptions): QueryIterator<StoredProcedureDefinition> {
-        return this.client.documentClient.queryStoredProcedures(this.container.url, query, options);
+    public query(
+        query: SqlQuerySpec,
+        options?: FeedOptions
+    ): QueryIterator<StoredProcedureDefinition> {
+        return this.client.documentClient.queryStoredProcedures(
+            this.container.url,
+            query,
+            options
+        );
     }
 
-    public readAll(options?: FeedOptions): QueryIterator<StoredProcedureDefinition> {
-        return this.client.documentClient.readStoredProcedures(this.container.url, options);
+    public readAll(
+        options?: FeedOptions
+    ): QueryIterator<StoredProcedureDefinition> {
+        return this.client.documentClient.readStoredProcedures(
+            this.container.url,
+            options
+        );
     }
 
     /**
@@ -32,9 +44,13 @@ export class StoredProcedures {
      */
     public async create(
         body: StoredProcedureDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<StoredProcedureDefinition>> {
-        return this.client.documentClient.createStoredProcedure(this.container.url, body, options);
+        return this.client.documentClient.createStoredProcedure(
+            this.container.url,
+            body,
+            options
+        );
     }
 
     /**
@@ -49,8 +65,12 @@ export class StoredProcedures {
      */
     public async upsert(
         body: StoredProcedureDefinition,
-        options?: RequestOptions,
+        options?: RequestOptions
     ): Promise<Response<StoredProcedureDefinition>> {
-        return this.client.documentClient.upsertStoredProcedure(this.container.url, body, options);
+        return this.client.documentClient.upsertStoredProcedure(
+            this.container.url,
+            body,
+            options
+        );
     }
 }

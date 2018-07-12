@@ -6,55 +6,85 @@ import { IHeaders } from "./queryExecutionContext";
 export class SessionContainer {
     constructor(
         private hostname?: string,
-        private collectionNameToCollectionResourceId: { [collectionName: string]: string } = {},
+        private collectionNameToCollectionResourceId: {
+            [collectionName: string]: string;
+        } = {},
         // TODO: chrande made this public for a test
-        public  collectionResourceIdToSessionTokens:
-            { [collectionResourceId: string]: { [SessionName: string]: string } } = {}) {
-    }
+        public collectionResourceIdToSessionTokens: {
+            [collectionResourceId: string]: { [SessionName: string]: string };
+        } = {}
+    ) {}
 
-    public getHostName() { // TODO: move to getter
+    public getHostName() {
+        // TODO: move to getter
         return this.hostname;
     }
 
-    public getPartitionKeyRangeIdToTokenMap(request: any) { // TODO: any
+    public getPartitionKeyRangeIdToTokenMap(request: any) {
+        // TODO: any
         return this.getPartitionKeyRangeIdToTokenMapPrivate(
-            request["isNameBased"], request["resourceId"], request["resourceAddress"]);
+            request["isNameBased"],
+            request["resourceId"],
+            request["resourceAddress"]
+        );
     }
 
-    public getPartitionKeyRangeIdToTokenMapPrivate(isNameBased: boolean, rId: string, resourceAddress: string) {
+    public getPartitionKeyRangeIdToTokenMapPrivate(
+        isNameBased: boolean,
+        rId: string,
+        resourceAddress: string
+    ) {
         let rangeIdToTokenMap = null;
         if (!isNameBased) {
             if (rId) {
                 const resourceIdObject = new ResourceId();
                 const resourceId = resourceIdObject.parse(rId);
                 if (resourceId.documentCollection !== EMPTY) {
-                    rangeIdToTokenMap =
-                        this.collectionResourceIdToSessionTokens[resourceId.getUniqueDocumentCollectionId()];
+                    rangeIdToTokenMap = this
+                        .collectionResourceIdToSessionTokens[
+                        resourceId.getUniqueDocumentCollectionId()
+                    ];
                 }
             }
         } else {
             resourceAddress = Base._trimSlashes(resourceAddress);
             const collectionName = Base.getCollectionLink(resourceAddress);
-            if (collectionName && (collectionName in this.collectionNameToCollectionResourceId)) {
-                rangeIdToTokenMap =
-                    this.collectionResourceIdToSessionTokens[this.collectionNameToCollectionResourceId[collectionName]];
+            if (
+                collectionName &&
+                collectionName in this.collectionNameToCollectionResourceId
+            ) {
+                rangeIdToTokenMap = this.collectionResourceIdToSessionTokens[
+                    this.collectionNameToCollectionResourceId[collectionName]
+                ];
             }
         }
 
         return rangeIdToTokenMap;
     }
 
-    public resolveGlobalSessionToken(request: any) { // TODO: any request
+    public resolveGlobalSessionToken(request: any) {
+        // TODO: any request
         if (!request) {
             throw new Error("request cannot be null");
         }
 
         return this.resolveGlobalSessionTokenPrivate(
-            request["isNameBased"], request["resourceId"], request["resourceAddress"]);
+            request["isNameBased"],
+            request["resourceId"],
+            request["resourceAddress"]
+        );
     }
 
-    public resolveGlobalSessionTokenPrivate(isNameBased: boolean, rId: string, resourceAddress: string) {
-        const rangeIdToTokenMap = this.getPartitionKeyRangeIdToTokenMapPrivate(isNameBased, rId, resourceAddress);
+    public resolveGlobalSessionTokenPrivate(
+        isNameBased: boolean,
+        rId: string,
+        resourceAddress: string
+    ) {
+        const rangeIdToTokenMap = this.getPartitionKeyRangeIdToTokenMapPrivate(
+            isNameBased,
+            rId,
+            resourceAddress
+        );
         if (rangeIdToTokenMap != null) {
             return this.getCombinedSessionToken(rangeIdToTokenMap);
         }
@@ -62,67 +92,107 @@ export class SessionContainer {
         return "";
     }
 
-    public clearToken(request: any) { // TODO: any request
+    public clearToken(request: any) {
+        // TODO: any request
         let collectionResourceId;
         if (!request["isNameBased"]) {
             if (request["resourceId"]) {
                 const resourceIdObject = new ResourceId();
-                const resourceId = resourceIdObject.parse(request["resourceId"]);
+                const resourceId = resourceIdObject.parse(
+                    request["resourceId"]
+                );
                 if (resourceId.documentCollection !== EMPTY) {
                     collectionResourceId = resourceId.getUniqueDocumentCollectionId();
                 }
             }
         } else {
-            const resourceAddress = Base._trimSlashes(request["resourceAddress"]);
+            const resourceAddress = Base._trimSlashes(
+                request["resourceAddress"]
+            );
             const collectionName = Base.getCollectionLink(resourceAddress);
             if (collectionName) {
-                collectionResourceId = this.collectionNameToCollectionResourceId[collectionName];
-                delete this.collectionNameToCollectionResourceId[collectionName];
+                collectionResourceId = this
+                    .collectionNameToCollectionResourceId[collectionName];
+                delete this.collectionNameToCollectionResourceId[
+                    collectionName
+                ];
             }
         }
         if (collectionResourceId !== undefined) {
-            delete this.collectionResourceIdToSessionTokens[collectionResourceId];
+            delete this.collectionResourceIdToSessionTokens[
+                collectionResourceId
+            ];
         }
     }
 
-    public setSessionToken(request: any, resHeaders: IHeaders) { // TODO: any request
-        if (resHeaders && !this.isReadingFromMaster(request["resourceType"], request["opearationType"])) {
+    public setSessionToken(request: any, resHeaders: IHeaders) {
+        // TODO: any request
+        if (
+            resHeaders &&
+            !this.isReadingFromMaster(
+                request["resourceType"],
+                request["opearationType"]
+            )
+        ) {
             const sessionToken = resHeaders[Constants.HttpHeaders.SessionToken];
             if (sessionToken) {
-                let ownerFullName = resHeaders[Constants.HttpHeaders.OwnerFullName];
+                let ownerFullName =
+                    resHeaders[Constants.HttpHeaders.OwnerFullName];
                 if (!ownerFullName) {
-                    ownerFullName = Base._trimSlashes(request["resourceAddress"]);
+                    ownerFullName = Base._trimSlashes(
+                        request["resourceAddress"]
+                    );
                 }
 
-                const collectionName = Base.getCollectionLink(ownerFullName as string);
+                const collectionName = Base.getCollectionLink(
+                    ownerFullName as string
+                );
 
-                const ownerId = !request["isNameBased"] ? request["resourceId"]
-                    : resHeaders[Constants.HttpHeaders.OwnerId] || request["resourceId"];
+                const ownerId = !request["isNameBased"]
+                    ? request["resourceId"]
+                    : resHeaders[Constants.HttpHeaders.OwnerId] ||
+                      request["resourceId"];
 
                 if (ownerId) {
                     const resourceIdObject = new ResourceId();
                     const resourceId = resourceIdObject.parse(ownerId);
 
-                    if (resourceId.documentCollection !== EMPTY && collectionName) {
+                    if (
+                        resourceId.documentCollection !== EMPTY &&
+                        collectionName
+                    ) {
                         const uniqueDocumentCollectionId = resourceId.getUniqueDocumentCollectionId();
-                        this.setSesisonTokenPrivate(uniqueDocumentCollectionId, collectionName, sessionToken as string);
+                        this.setSesisonTokenPrivate(
+                            uniqueDocumentCollectionId,
+                            collectionName,
+                            sessionToken as string
+                        );
                     }
                 }
             }
         }
     }
 
-    public setSesisonTokenPrivate(collectionRid: string, collectionName: string, sessionToken: string) {
+    public setSesisonTokenPrivate(
+        collectionRid: string,
+        collectionName: string,
+        sessionToken: string
+    ) {
         if (!(collectionRid in this.collectionResourceIdToSessionTokens)) {
             this.collectionResourceIdToSessionTokens[collectionRid] = {};
         }
-        this.compareAndSetToken(sessionToken, this.collectionResourceIdToSessionTokens[collectionRid]);
+        this.compareAndSetToken(
+            sessionToken,
+            this.collectionResourceIdToSessionTokens[collectionRid]
+        );
         if (!(collectionName in this.collectionNameToCollectionResourceId)) {
-            this.collectionNameToCollectionResourceId[collectionName] = collectionRid;
+            this.collectionNameToCollectionResourceId[
+                collectionName
+            ] = collectionRid;
         }
     }
 
-    public getCombinedSessionToken(tokens: {[key: string]: string}) {
+    public getCombinedSessionToken(tokens: { [key: string]: string }) {
         let result = "";
         if (tokens) {
             for (const index in tokens) {
@@ -134,7 +204,10 @@ export class SessionContainer {
         return result.slice(0, -1);
     }
 
-    public compareAndSetToken(newToken: string, oldTokens: {[key: string]: string}) {
+    public compareAndSetToken(
+        newToken: string,
+        oldTokens: { [key: string]: string }
+    ) {
         if (newToken) {
             const newTokenParts = newToken.split(":");
             if (newTokenParts.length === 2) {
@@ -151,15 +224,17 @@ export class SessionContainer {
     }
 
     public isReadingFromMaster(resourceType: string, operationType: string) {
-        if (resourceType === Constants.Path.OffersPathSegment ||
+        if (
+            resourceType === Constants.Path.OffersPathSegment ||
             resourceType === Constants.Path.DatabasesPathSegment ||
             resourceType === Constants.Path.UsersPathSegment ||
             resourceType === Constants.Path.PermissionsPathSegment ||
             resourceType === Constants.Path.TopologyPathSegment ||
             resourceType === Constants.Path.DatabaseAccountPathSegment ||
             resourceType === Constants.Path.PartitionKeyRangesPathSegment ||
-            (resourceType === Constants.Path.CollectionsPathSegment
-                && (operationType === Constants.OperationTypes.Query))) {
+            (resourceType === Constants.Path.CollectionsPathSegment &&
+                operationType === Constants.OperationTypes.Query)
+        ) {
             return true;
         }
 

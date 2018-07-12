@@ -29,7 +29,8 @@ export class GlobalEndpointManager {
         this.defaultEndpoint = client.urlConnection;
         this.readEndpoint = client.urlConnection;
         this.writeEndpoint = client.urlConnection;
-        this.enableEndpointDiscovery = client.connectionPolicy.EnableEndpointDiscovery;
+        this.enableEndpointDiscovery =
+            client.connectionPolicy.EnableEndpointDiscovery;
         this.preferredLocations = client.connectionPolicy.PreferredLocations;
         this.isEndpointCacheInitialized = false;
     }
@@ -105,8 +106,13 @@ export class GlobalEndpointManager {
 
             // Read and Write endpoints will be initialized to default endpoint if we were not able
             // to get the database account info
-            [this.writeEndpoint, this.readEndpoint] =
-                await this._updateLocationsCache(writableLocations, readableLocations);
+            [
+                this.writeEndpoint,
+                this.readEndpoint
+            ] = await this._updateLocationsCache(
+                writableLocations,
+                readableLocations
+            );
             this.isEndpointCacheInitialized = true;
             return [this.writeEndpoint, this.readEndpoint];
         } else {
@@ -125,8 +131,9 @@ export class GlobalEndpointManager {
     private async _getDatabaseAccount(): Promise<DatabaseAccount> {
         const options = { urlConnection: this.defaultEndpoint };
         try {
-            const {result: databaseAccount} =
-                await this.client.getDatabaseAccount(options);
+            const {
+                result: databaseAccount
+            } = await this.client.getDatabaseAccount(options);
             return databaseAccount;
             // If for any reason(non - globaldb related), we are not able to get the database
             // account from the above call to getDatabaseAccount,
@@ -140,10 +147,14 @@ export class GlobalEndpointManager {
 
         for (const location of this.preferredLocations) {
             try {
-                const locationalEndpoint =
-                    GlobalEndpointManager._getLocationalEndpoint(this.defaultEndpoint, location);
+                const locationalEndpoint = GlobalEndpointManager._getLocationalEndpoint(
+                    this.defaultEndpoint,
+                    location
+                );
                 const innerOptions = { urlConnection: locationalEndpoint }; // TODO: code smell inner options is hacky
-                const {result: databaseAccount} = await this.client.getDatabaseAccount(innerOptions);
+                const {
+                    result: databaseAccount
+                } = await this.client.getDatabaseAccount(innerOptions);
                 if (databaseAccount) {
                     return databaseAccount;
                 }
@@ -160,7 +171,10 @@ export class GlobalEndpointManager {
      * @param {string} defaultEndpoint - The default endpoint to use for teh endpoint.
      * @param {string} locationName    - The location name for the azure region like "East US".
      */
-    private static _getLocationalEndpoint(defaultEndpoint: string, locationName: string) {
+    private static _getLocationalEndpoint(
+        defaultEndpoint: string,
+        locationName: string
+    ) {
         // For defaultEndpoint like 'https://contoso.documents.azure.com:443/' parse it to generate URL format
         // This defaultEndpoint should be global endpoint(and cannot be a locational endpoint)
         // and we agreed to document that
@@ -168,19 +182,28 @@ export class GlobalEndpointManager {
 
         // hostname attribute in endpointUrl will return 'contoso.documents.azure.com'
         if (endpointUrl.hostname) {
-            const hostnameParts = (endpointUrl.hostname).toString().toLowerCase().split(".");
+            const hostnameParts = endpointUrl.hostname
+                .toString()
+                .toLowerCase()
+                .split(".");
             if (hostnameParts) {
                 // globalDatabaseAccountName will return 'contoso'
                 const globalDatabaseAccountName = hostnameParts[0];
 
                 // Prepare the locationalDatabaseAccountName as contoso-EastUS for location_name 'East US'
-                const locationalDatabaseAccountName = globalDatabaseAccountName + "-" + locationName.replace(" ", "");
+                const locationalDatabaseAccountName =
+                    globalDatabaseAccountName +
+                    "-" +
+                    locationName.replace(" ", "");
 
                 // Replace 'contoso' with 'contoso-EastUS' and
                 // return locationalEndpoint as https://contoso-EastUS.documents.azure.com:443/
                 const locationalEndpoint = defaultEndpoint
                     .toLowerCase()
-                    .replace(globalDatabaseAccountName, locationalDatabaseAccountName);
+                    .replace(
+                        globalDatabaseAccountName,
+                        locationalDatabaseAccountName
+                    );
                 return locationalEndpoint;
             }
         }
@@ -197,7 +220,9 @@ export class GlobalEndpointManager {
      * @param {function} callback           - The function to be called as callback after executing this method.
      */
     private async _updateLocationsCache(
-        writableLocations: LocationsType, readableLocations: LocationsType): Promise<[string, string]> {
+        writableLocations: LocationsType,
+        readableLocations: LocationsType
+    ): Promise<[string, string]> {
         let writeEndpoint;
         let readEndpoint;
         // Use the default endpoint as Read and Write endpoints if EnableEndpointDiscovery
@@ -210,10 +235,11 @@ export class GlobalEndpointManager {
 
         // Use the default endpoint as Write endpoint if there are no writable locations, or
         // first writable location as Write endpoint if there are writable locations
-        writeEndpoint = writableLocations.length === 0
-            ? this.defaultEndpoint
-            : writableLocations[0][Constants.DatabaseAccountEndpoint];
-            // Why where we trying to access this like a dictionary? ;
+        writeEndpoint =
+            writableLocations.length === 0
+                ? this.defaultEndpoint
+                : writableLocations[0][Constants.DatabaseAccountEndpoint];
+        // Why where we trying to access this like a dictionary? ;
 
         // Use the Write endpoint as Read endpoint if there are no readable locations
         if (readableLocations.length === 0) {
@@ -232,14 +258,16 @@ export class GlobalEndpointManager {
                 // Use the first readable location as Read endpoint from the preferred locations
                 for (const readLocation of readableLocations) {
                     if (readLocation[Constants.Name] === preferredLocation) {
-                        readEndpoint = readLocation[Constants.DatabaseAccountEndpoint];
+                        readEndpoint =
+                            readLocation[Constants.DatabaseAccountEndpoint];
                         return [writeEndpoint, readEndpoint];
                     }
                 }
                 // Else, use the first writable location as Read endpoint from the preferred locations
                 for (const writeLocation of writableLocations) {
                     if (writeLocation[Constants.Name] === preferredLocation) {
-                        readEndpoint = writeLocation[Constants.DatabaseAccountEndpoint];
+                        readEndpoint =
+                            writeLocation[Constants.DatabaseAccountEndpoint];
                         return [writeEndpoint, readEndpoint];
                     }
                 }

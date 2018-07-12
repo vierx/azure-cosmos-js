@@ -5,7 +5,8 @@ export interface IAverageAggregator {
     count: number;
 }
 
-export class AverageAggregator implements IAverageAggregator, IAggregator<IAverageAggregator> {
+export class AverageAggregator
+    implements IAverageAggregator, IAggregator<IAverageAggregator> {
     public sum: number;
     public count: number;
     /**
@@ -37,5 +38,4 @@ export class AverageAggregator implements IAverageAggregator, IAggregator<IAvera
         }
         return this.sum / this.count;
     }
-
 }

@@ -1,11 +1,17 @@
 import * as semaphore from "semaphore";
 import { Base } from "../base";
 import { QueryIterator } from "../queryIterator";
-import { CollectionRoutingMapFactory, InMemoryCollectionRoutingMap, QueryRange } from "./";
+import {
+    CollectionRoutingMapFactory,
+    InMemoryCollectionRoutingMap,
+    QueryRange
+} from "./";
 
 export class PartitionKeyRangeCache {
     private documentclient: any;
-    private collectionRoutingMapByCollectionId: { [key: string]: InMemoryCollectionRoutingMap };
+    private collectionRoutingMapByCollectionId: {
+        [key: string]: InMemoryCollectionRoutingMap;
+    };
     private sem: semaphore.Semaphore;
 
     /**
@@ -16,7 +22,8 @@ export class PartitionKeyRangeCache {
      * @param {object} documentclient - The documentclient object.
      * @ignore
      */
-    constructor(documentclient: any) { // TODO: documentClient
+    constructor(documentclient: any) {
+        // TODO: documentClient
         this.documentclient = documentclient;
         this.collectionRoutingMapByCollectionId = {};
         this.sem = semaphore(1);
@@ -28,34 +35,51 @@ export class PartitionKeyRangeCache {
      * @param {string} collectionLink            - Requested collectionLink
      * @ignore
      */
-    public async onCollectionRoutingMap(collectionLink: string): Promise<InMemoryCollectionRoutingMap> {
+    public async onCollectionRoutingMap(
+        collectionLink: string
+    ): Promise<InMemoryCollectionRoutingMap> {
         const isNameBased = Base.isLinkNameBased(collectionLink);
-        const collectionId = this.documentclient.getIdFromLink(collectionLink, isNameBased);
+        const collectionId = this.documentclient.getIdFromLink(
+            collectionLink,
+            isNameBased
+        );
 
-        let collectionRoutingMap = this.collectionRoutingMapByCollectionId[collectionId];
+        let collectionRoutingMap = this.collectionRoutingMapByCollectionId[
+            collectionId
+        ];
         if (collectionRoutingMap === undefined) {
             // attempt to consturct collection routing map
-            collectionRoutingMap = await new Promise<InMemoryCollectionRoutingMap>((resolve, reject) => {
+            collectionRoutingMap = await new Promise<
+                InMemoryCollectionRoutingMap
+            >((resolve, reject) => {
                 const semaphorizedFuncCollectionMapInstantiator = async () => {
-                    let crm: InMemoryCollectionRoutingMap = this.collectionRoutingMapByCollectionId[collectionId];
+                    let crm: InMemoryCollectionRoutingMap = this
+                        .collectionRoutingMapByCollectionId[collectionId];
                     if (crm === undefined) {
                         try {
-                            const partitionKeyRangesIterator: QueryIterator<any> =
-                                this.documentclient.readPartitionKeyRanges(collectionLink);
-                            const { result: resources } = await partitionKeyRangesIterator.toArray();
+                            const partitionKeyRangesIterator: QueryIterator<
+                                any
+                            > = this.documentclient.readPartitionKeyRanges(
+                                collectionLink
+                            );
+                            const {
+                                result: resources
+                            } = await partitionKeyRangesIterator.toArray();
 
                             crm = CollectionRoutingMapFactory.createCompleteRoutingMap(
-                                resources.map((r) => [r, true]),
-                                collectionId);
+                                resources.map(r => [r, true]),
+                                collectionId
+                            );
 
-                            this.collectionRoutingMapByCollectionId[collectionId] = crm;
+                            this.collectionRoutingMapByCollectionId[
+                                collectionId
+                            ] = crm;
                             this.sem.leave();
                             resolve(crm);
                         } catch (err) {
                             this.sem.leave();
                             reject(err);
                         }
-
                     } else {
                         // sanity gaurd
                         this.sem.leave();
@@ -81,7 +105,10 @@ export class PartitionKeyRangeCache {
      * @param queryRanges
      * @ignore
      */
-    public async getOverlappingRanges(collectionLink: string, queryRanges: QueryRange) {
+    public async getOverlappingRanges(
+        collectionLink: string,
+        queryRanges: QueryRange
+    ) {
         const crm = await this.onCollectionRoutingMap(collectionLink);
         return crm.getOverlappingRanges(queryRanges);
     }

@@ -6,16 +6,16 @@ import testConfig from "../common/_testConfig";
 const endpoint = testConfig.host;
 const masterKey = testConfig.masterKey;
 
-describe("retry policy tests", function () {
+describe("retry policy tests", function() {
     this.timeout(300000);
     const collectionDefinition = {
-        id: "sample collection",
+        id: "sample collection"
     };
 
     const documentDefinition = {
         id: "doc",
         name: "sample document",
-        key: "value",
+        key: "value"
     };
 
     const connectionPolicy = new AzureDocuments.ConnectionPolicy();
@@ -43,21 +43,15 @@ describe("retry policy tests", function () {
     // }
 
     // TODO: need to fix this, the stubbing doesn't work with the new way we work
-    xit("throttle retry policy test default retryAfter", async function () {
+    xit("throttle retry policy test default retryAfter", async function() {
         // connectionPolicy.RetryOptions = new RetryOptions(5);
-
         // const client = new CosmosClient({endpoint, auth: { masterKey }, connectionPolicy});
-
         // const { result: db } = await client.createDatabase({ id: "sample database" });
-
         // const { result: collection } = await client.createCollection(db._self, collectionDefinition);
-
         // const originalGetDatabaseAccount = client.getDatabaseAccount;
         // client.getDatabaseAccount = mockGetDatabaseAccount;
-
         // const originalCreateRequestObjectStub = request._createRequestObjectStub;
         // request._createRequestObjectStub = mockCreateRequestObjectStub;
-
         // try {
         //     const { result: createdDocument } =
         //         await client.createDocument(collection._self, documentDefinition);
@@ -68,27 +62,20 @@ describe("retry policy tests", function () {
         //         connectionPolicy.RetryOptions.MaxRetryAttemptCount, "Current retry attempts not maxed out");
         //     assert.ok(responseHeaders[Constants.ThrottleRetryWaitTimeInMs]
         //         >= connectionPolicy.RetryOptions.MaxRetryAttemptCount * retryAfterInMilliseconds);
-
         // }
         // request._createRequestObjectStub = originalCreateRequestObjectStub;
         // client.getDatabaseAccount = originalGetDatabaseAccount;
     });
 
-    xit("throttle retry policy test fixed retryAfter", async function () {
+    xit("throttle retry policy test fixed retryAfter", async function() {
         // connectionPolicy.RetryOptions = new RetryOptions(5, 2000);
-
         // const client = new CosmosClient(endpoint, { masterKey }, connectionPolicy);
-
         // const { result: db } = await client.createDatabase({ id: "sample database" });
-
         // const { result: collection } = await client.createCollection(db._self, collectionDefinition);
-
         // const originalGetDatabaseAccount = client.getDatabaseAccount;
         // client.getDatabaseAccount = mockGetDatabaseAccount;
-
         // const originalCreateRequestObjectStub = request._createRequestObjectStub;
         // request._createRequestObjectStub = mockCreateRequestObjectStub;
-
         // try {
         //     await client.createDocument(collection._self, documentDefinition);
         //     assert.fail("Must throw");
@@ -101,26 +88,19 @@ describe("retry policy tests", function () {
         //         >= connectionPolicy.RetryOptions.MaxRetryAttemptCount
         //         * connectionPolicy.RetryOptions.FixedRetryIntervalInMilliseconds);
         // }
-
         // request._createRequestObjectStub = originalCreateRequestObjectStub;
         // client.getDatabaseAccount = originalGetDatabaseAccount;
     });
 
-    xit("throttle retry policy test max wait time", async function () {
+    xit("throttle retry policy test max wait time", async function() {
         // connectionPolicy.RetryOptions = new RetryOptions(5, 2000, 3);
-
         // const client = new CosmosClient(endpoint, { masterKey }, connectionPolicy);
-
         // const { result: db } = await client.createDatabase({ id: "sample database" });
-
         // const { result: collection } = await client.createCollection(db._self, collectionDefinition);
-
         // const originalGetDatabaseAccount = client.getDatabaseAccount;
         // client.getDatabaseAccount = mockGetDatabaseAccount;
-
         // const originalCreateRequestObjectStub = request._createRequestObjectStub;
         // request._createRequestObjectStub = mockCreateRequestObjectStub;
-
         // try {
         //     await client.createDocument(collection._self, documentDefinition);
         // } catch (err) {
@@ -131,49 +111,35 @@ describe("retry policy tests", function () {
         // }
         // request._createRequestObjectStub = originalCreateRequestObjectStub;
         // client.getDatabaseAccount = originalGetDatabaseAccount;
-
     });
 
-    xit("default retry policy validate create failure", async function () {
+    xit("default retry policy validate create failure", async function() {
         // const client = new CosmosClient(endpoint, { masterKey }, connectionPolicy);
-
         // const { result: db } = await client.createDatabase({ id: "sample database" });
-
         // const { result: collection } = await client.createCollection(db._self, collectionDefinition);
-
         // global.originalFunc = request._createRequestObjectStub;
         // global.counter = 0;
-
         // request._createRequestObjectStub = mockCreateRequestObjectForDefaultRetryStub;
-
         // try {
         //     await client.createDocument(collection._self, documentDefinition);
         // } catch (err) {
         //     assert.equal(err.code, "ECONNRESET", "invalid error code");
         //     // assert.equal(global.counter, 6, "invalid number of retries");
         // }
-
         // request._createRequestObjectStub = global.originalFunc;
     });
 
-    xit("default retry policy validate read success", async function () {
+    xit("default retry policy validate read success", async function() {
         // const client = new CosmosClient(endpoint, { masterKey }, connectionPolicy);
-
         // const { result: db } = await client.createDatabase({ id: "sample database" });
-
         // const { result: collection } = await client.createCollection(db._self, collectionDefinition);
-
         // const { result: createdDocument } = await client.createDocument(collection._self, documentDefinition);
-
         // global.originalFunc = request._createRequestObjectStub;
         // global.counter = 0;
-
         // request._createRequestObjectStub = mockCreateRequestObjectForDefaultRetryStub;
-
         // const { result: readDocument } = await client.readDocument(createdDocument._self);
         // assert.equal(readDocument.id, documentDefinition.id, "invalid document id");
         // assert.equal(global.counter, 5, "invalid number of retries");
-
         // request._createRequestObjectStub = global.originalFunc;
     });
 });

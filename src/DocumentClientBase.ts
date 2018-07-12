@@ -4,7 +4,12 @@ import * as tunnel from "tunnel";
 import * as url from "url";
 import { Base, ResponseCallback } from "./base";
 import { Constants, Helper, Platform } from "./common";
-import { ConnectionPolicy, ConsistencyLevel, DatabaseAccount, QueryCompatibilityMode } from "./documents";
+import {
+    ConnectionPolicy,
+    ConsistencyLevel,
+    DatabaseAccount,
+    QueryCompatibilityMode
+} from "./documents";
 import { GlobalEndpointManager } from "./globalEndpointManager";
 import { IHeaders } from "./queryExecutionContext";
 import { RequestHandler, Response } from "./request/request";
@@ -32,14 +37,17 @@ export abstract class DocumentClientBase {
         public urlConnection: string,
         auth: any, // TODO: any auth
         connectionPolicy: ConnectionPolicy,
-        consistencyLevel: ConsistencyLevel) {
+        consistencyLevel: ConsistencyLevel
+    ) {
         if (auth) {
             this.masterKey = auth.masterKey;
             this.resourceTokens = auth.resourceTokens;
             if (auth.permissionFeed) {
                 this.resourceTokens = {};
                 for (const permission of auth.permissionFeed) {
-                    const resourceId = Helper.getResourceIdFromPath(permission.resource);
+                    const resourceId = Helper.getResourceIdFromPath(
+                        permission.resource
+                    );
                     if (!resourceId) {
                         throw new Error(`authorization error: ${resourceId} \
                             is an invalid resourceId in permissionFeed`);
@@ -55,17 +63,26 @@ export abstract class DocumentClientBase {
         this.consistencyLevel = consistencyLevel;
         this.defaultHeaders = {};
         this.defaultHeaders[Constants.HttpHeaders.CacheControl] = "no-cache";
-        this.defaultHeaders[Constants.HttpHeaders.Version] = Constants.CurrentVersion;
+        this.defaultHeaders[Constants.HttpHeaders.Version] =
+            Constants.CurrentVersion;
         if (consistencyLevel !== undefined) {
-            this.defaultHeaders[Constants.HttpHeaders.ConsistencyLevel] = consistencyLevel;
+            this.defaultHeaders[
+                Constants.HttpHeaders.ConsistencyLevel
+            ] = consistencyLevel;
         }
 
-        const platformDefaultHeaders = Platform.getPlatformDefaultHeaders() || {};
-        for (const platformDefaultHeader of Object.keys(platformDefaultHeaders)) {
-            this.defaultHeaders[platformDefaultHeader] = platformDefaultHeaders[platformDefaultHeader];
+        const platformDefaultHeaders =
+            Platform.getPlatformDefaultHeaders() || {};
+        for (const platformDefaultHeader of Object.keys(
+            platformDefaultHeaders
+        )) {
+            this.defaultHeaders[platformDefaultHeader] =
+                platformDefaultHeaders[platformDefaultHeader];
         }
 
-        this.defaultHeaders[Constants.HttpHeaders.UserAgent] = Platform.getUserAgent();
+        this.defaultHeaders[
+            Constants.HttpHeaders.UserAgent
+        ] = Platform.getUserAgent();
 
         // overide this for default query params to be added to the url.
         this.defaultUrlParams = "";
@@ -83,8 +100,12 @@ export abstract class DocumentClientBase {
         this.sessionContainer = new SessionContainer(this.urlConnection);
 
         // Initialize request agent
-        const requestAgentOptions: AgentOptions & tunnel.HttpsOverHttpsOptions & tunnel.HttpsOverHttpOptions = {
-            keepAlive: true, maxSockets: 256, maxFreeSockets: 256,
+        const requestAgentOptions: AgentOptions &
+            tunnel.HttpsOverHttpsOptions &
+            tunnel.HttpsOverHttpOptions = {
+            keepAlive: true,
+            maxSockets: 256,
+            maxFreeSockets: 256
         };
         if (!!this.connectionPolicy.ProxyUrl) {
             const proxyUrl = url.parse(this.connectionPolicy.ProxyUrl);
@@ -92,16 +113,17 @@ export abstract class DocumentClientBase {
             requestAgentOptions.proxy = {
                 host: proxyUrl.hostname,
                 port,
-                headers: {},
+                headers: {}
             };
 
             if (!!proxyUrl.auth) {
                 requestAgentOptions.proxy.proxyAuth = proxyUrl.auth;
             }
 
-            this.requestAgent = (proxyUrl.protocol.toLowerCase() === "https:" ?
-                tunnel.httpsOverHttps(requestAgentOptions) :
-                tunnel.httpsOverHttp(requestAgentOptions)); // TODO: type coersion
+            this.requestAgent =
+                proxyUrl.protocol.toLowerCase() === "https:"
+                    ? tunnel.httpsOverHttps(requestAgentOptions)
+                    : tunnel.httpsOverHttp(requestAgentOptions); // TODO: type coersion
         } else {
             this.requestAgent = new Agent(requestAgentOptions); // TODO: Move to request?
         }
@@ -118,34 +140,60 @@ export abstract class DocumentClientBase {
      */
     public async getDatabaseAccount(
         options?: RequestOptions,
-        callback?: ResponseCallback<DatabaseAccount>): Promise<Response<DatabaseAccount>> {
-        const optionsCallbackTuple = this.validateOptionsAndCallback(options, callback);
+        callback?: ResponseCallback<DatabaseAccount>
+    ): Promise<Response<DatabaseAccount>> {
+        const optionsCallbackTuple = this.validateOptionsAndCallback(
+            options,
+            callback
+        );
         options = optionsCallbackTuple.options;
         callback = optionsCallbackTuple.callback;
 
         const urlConnection = options.urlConnection || this.urlConnection;
 
-        const requestHeaders = await Base.getHeaders(this, this.defaultHeaders, "get", "", "", "", {});
+        const requestHeaders = await Base.getHeaders(
+            this,
+            this.defaultHeaders,
+            "get",
+            "",
+            "",
+            "",
+            {}
+        );
 
         try {
-            const { result, headers } = await this.get(urlConnection, "", requestHeaders);
+            const { result, headers } = await this.get(
+                urlConnection,
+                "",
+                requestHeaders
+            );
 
             const databaseAccount = new DatabaseAccount();
             databaseAccount.DatabasesLink = "/dbs/";
             databaseAccount.MediaLink = "/media/";
-            databaseAccount.MaxMediaStorageUsageInMB =
-                headers[Constants.HttpHeaders.MaxMediaStorageUsageInMB] as number;
-            databaseAccount.CurrentMediaStorageUsageInMB =
-                headers[Constants.HttpHeaders.CurrentMediaStorageUsageInMB] as number;
+            databaseAccount.MaxMediaStorageUsageInMB = headers[
+                Constants.HttpHeaders.MaxMediaStorageUsageInMB
+            ] as number;
+            databaseAccount.CurrentMediaStorageUsageInMB = headers[
+                Constants.HttpHeaders.CurrentMediaStorageUsageInMB
+            ] as number;
             databaseAccount.ConsistencyPolicy = result.userConsistencyPolicy;
 
             // WritableLocations and ReadableLocations properties will be available
             // only for geo-replicated database accounts
-            if (Constants.WritableLocations in result && result.id !== "localhost") {
-                databaseAccount._writableLocations = result[Constants.WritableLocations];
+            if (
+                Constants.WritableLocations in result &&
+                result.id !== "localhost"
+            ) {
+                databaseAccount._writableLocations =
+                    result[Constants.WritableLocations];
             }
-            if (Constants.ReadableLocations in result && result.id !== "localhost") {
-                databaseAccount._readableLocations = result[Constants.ReadableLocations];
+            if (
+                Constants.ReadableLocations in result &&
+                result.id !== "localhost"
+            ) {
+                databaseAccount._readableLocations =
+                    result[Constants.ReadableLocations];
             }
 
             if (callback) {
@@ -171,12 +219,16 @@ export abstract class DocumentClientBase {
         // options
         if (optionsIn === undefined) {
             options = new Object();
-        } else if (callbackIn === undefined && typeof optionsIn === "function") {
+        } else if (
+            callbackIn === undefined &&
+            typeof optionsIn === "function"
+        ) {
             callback = optionsIn;
             options = new Object();
         } else if (typeof optionsIn !== "object") {
             throw new Error(
-                `The "options" parameter must be of type "object". Actual type is: "${typeof optionsIn}".`);
+                `The "options" parameter must be of type "object". Actual type is: "${typeof optionsIn}".`
+            );
         } else {
             options = optionsIn;
         }
@@ -184,7 +236,8 @@ export abstract class DocumentClientBase {
         // callback
         if (callbackIn !== undefined && typeof callbackIn !== "function") {
             throw new Error(
-                `The "callback" parameter must be of type "function". Actual type is: "${typeof callbackIn}".`);
+                `The "callback" parameter must be of type "function". Actual type is: "${typeof callbackIn}".`
+            );
         } else if (typeof callbackIn === "function") {
             callback = callbackIn;
         }
@@ -193,7 +246,8 @@ export abstract class DocumentClientBase {
     }
 
     /** @ignore */
-    public get(urlString: string, request: any, headers: IHeaders) { // TODO: any
+    public get(urlString: string, request: any, headers: IHeaders) {
+        // TODO: any
         return RequestHandler.request(
             this._globalEndpointManager,
             this.connectionPolicy,
@@ -203,11 +257,13 @@ export abstract class DocumentClientBase {
             request,
             undefined,
             this.defaultUrlParams,
-            headers);
+            headers
+        );
     }
 
     /** @ignore */
-    public post(urlString: string, request: any, body: any, headers: IHeaders) { // TODO: any
+    public post(urlString: string, request: any, body: any, headers: IHeaders) {
+        // TODO: any
         return RequestHandler.request(
             this._globalEndpointManager,
             this.connectionPolicy,
@@ -217,11 +273,13 @@ export abstract class DocumentClientBase {
             request,
             body,
             this.defaultUrlParams,
-            headers);
+            headers
+        );
     }
 
     /** @ignore */
-    public put(urlString: string, request: any, body: any, headers: IHeaders) { // TODO: any
+    public put(urlString: string, request: any, body: any, headers: IHeaders) {
+        // TODO: any
         return RequestHandler.request(
             this._globalEndpointManager,
             this.connectionPolicy,
@@ -231,11 +289,13 @@ export abstract class DocumentClientBase {
             request,
             body,
             this.defaultUrlParams,
-            headers);
+            headers
+        );
     }
 
     /** @ignore */
-    public head(urlString: string, request: any, headers: IHeaders) { // TODO: any
+    public head(urlString: string, request: any, headers: IHeaders) {
+        // TODO: any
         return RequestHandler.request(
             this._globalEndpointManager,
             this.connectionPolicy,
@@ -245,7 +305,8 @@ export abstract class DocumentClientBase {
             request,
             undefined,
             this.defaultUrlParams,
-            headers);
+            headers
+        );
     }
 
     /** @ignore */
@@ -259,6 +320,7 @@ export abstract class DocumentClientBase {
             request,
             undefined,
             this.defaultUrlParams,
-            headers);
+            headers
+        );
     }
 }

@@ -1,6 +1,6 @@
 import { PartitionKey } from "../documents";
 
-export type CompareFunction = (x: Point , y: Point) => number;
+export type CompareFunction = (x: Point, y: Point) => number;
 
 export type Point = number | string;
 
@@ -15,7 +15,8 @@ export class Range {
      * @param {any} options.low                  - The low value in the range.
      * @param {any} options.high                 - The high value in the range.
      */
-    constructor(options?: any) { // TODO: any options
+    constructor(options?: any) {
+        // TODO: any options
         if (options === undefined) {
             options = {};
         }
@@ -79,14 +80,18 @@ export class Range {
 
     // TODO: private?
     public _containsPoint(point: Point, compareFunction?: CompareFunction) {
-        return this._compare(point, this.low, compareFunction) >= 0
-            && this._compare(point, this.high, compareFunction) <= 0;
+        return (
+            this._compare(point, this.low, compareFunction) >= 0 &&
+            this._compare(point, this.high, compareFunction) <= 0
+        );
     }
 
     // TODO: private?
     public _containsRange(range: Range, compareFunction?: CompareFunction) {
-        return this._compare(range.low, this.low, compareFunction) >= 0
-            && this._compare(range.high, this.high, compareFunction) <= 0;
+        return (
+            this._compare(range.low, this.low, compareFunction) >= 0 &&
+            this._compare(range.high, this.high, compareFunction) <= 0
+        );
     }
 
     // TODO: alias for backwards compat
@@ -97,8 +102,14 @@ export class Range {
         if (range === undefined || range === null) {
             throw new Error("Invalid Argument: 'other' is undefined or null");
         }
-        const maxLow = this._compare(this.low, range.low, compareFunction) >= 0 ? this.low : range.low;
-        const minHigh = this._compare(this.high, range.high, compareFunction) <= 0 ? this.high : range.high;
+        const maxLow =
+            this._compare(this.low, range.low, compareFunction) >= 0
+                ? this.low
+                : range.low;
+        const minHigh =
+            this._compare(this.high, range.high, compareFunction) <= 0
+                ? this.high
+                : range.high;
         return this._compare(maxLow, minHigh, compareFunction) <= 0;
     }
 
