@@ -62,5 +62,5 @@ export interface ItemDef {
   id: string;
   ttl?: string;
   [key: string]: any;
-  [headersKey]: IHeaders
+  [headersKey]: IHeaders;
 }
