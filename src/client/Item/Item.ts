@@ -3,6 +3,7 @@ import { CosmosClient } from "../../CosmosClient";
 import { RequestOptions, Response } from "../../request";
 import { headersKey, refKey } from "../../symbols";
 import { Container } from "../Container";
+import { IHeaders } from "../../queryExecutionContext/IHeaders";
 
 export class Item {
   private client: CosmosClient;
@@ -61,4 +62,5 @@ export interface ItemDef {
   id: string;
   ttl?: string;
   [key: string]: any;
+  [headersKey]: IHeaders
 }
