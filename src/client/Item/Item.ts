@@ -1,9 +1,9 @@
 import { UriFactory } from "../../common";
 import { CosmosClient } from "../../CosmosClient";
+import { IHeaders } from "../../queryExecutionContext/IHeaders";
 import { RequestOptions, Response } from "../../request";
 import { headersKey, refKey } from "../../symbols";
 import { Container } from "../Container";
-import { IHeaders } from "../../queryExecutionContext/IHeaders";
 
 export class Item {
   private client: CosmosClient;
