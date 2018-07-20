@@ -33,6 +33,6 @@ const containerId = "Todos";
 function handleError(error) {
   console.log();
   console.log("An error with code '" + error.code + "' has occurred:");
-  console.log(console.log(error));
+  console.log(error);
   console.log();
 }
