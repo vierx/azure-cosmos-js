@@ -1,6 +1,7 @@
 import assert from "assert";
-import { Container, DocumentBase } from "../..";
+import { Container } from "../..";
 import { ItemDefinition } from "../../client";
+import { PartitionKind } from "../../documents";
 import {
   bulkDeleteItems,
   bulkInsertItems,
@@ -109,7 +110,7 @@ describe("NodeJS CRUD Tests", function() {
       // create container
       const containerDefinition = {
         id: "coll1",
-        partitionKey: { paths: ["/" + partitionKey], kind: DocumentBase.PartitionKind.Hash }
+        partitionKey: { paths: ["/" + partitionKey], kind: PartitionKind.Hash }
       };
 
       const { body: containerdef } = await database.containers.create(containerDefinition, { offerThroughput: 12000 });

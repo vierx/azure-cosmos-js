@@ -1,5 +1,5 @@
 import assert from "assert";
-import { AzureDocuments, Constants, CosmosClient, RetryOptions } from "../..";
+import { ConnectionPolicy, Constants, CosmosClient, RetryOptions } from "../..";
 import * as request from "../../request";
 
 describe("retry policy tests", function() {
@@ -14,12 +14,12 @@ describe("retry policy tests", function() {
     key: "value"
   };
 
-  const connectionPolicy = new AzureDocuments.ConnectionPolicy();
+  const connectionPolicy = new ConnectionPolicy();
 
   // mocked database account to return the WritableLocations and ReadableLocations
   // set with the default endpoint
   // const mockGetDatabaseAccount = function (options, callback) {
-  //     const databaseAccount = new AzureDocuments.DatabaseAccount();
+  //     const databaseAccount = new DatabaseAccount();
   //     callback(undefined, databaseAccount);
   // };
 

@@ -1,6 +1,7 @@
 import assert from "assert";
-import { Container, CosmosClient, DocumentBase } from "../..";
+import { Container, CosmosClient } from "../..";
 import { Database } from "../../client";
+import { PermissionMode } from "../../documents";
 import { endpoint } from "../common/_testConfig";
 import { getTestContainer, removeAllDatabases } from "../common/TestHelpers";
 
@@ -15,11 +16,11 @@ describe("Authorization", function() {
   let userAllDefinition: any = { id: "User With All Permission" };
   let collReadPermission: any = {
     id: "container Read Permission",
-    permissionMode: DocumentBase.PermissionMode.Read
+    permissionMode: PermissionMode.Read
   };
   let collAllPermission: any = {
     id: "container All Permission",
-    permissionMode: DocumentBase.PermissionMode.All
+    permissionMode: PermissionMode.All
   };
   /************** TEST **************/
 
