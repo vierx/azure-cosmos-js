@@ -38,7 +38,7 @@ async function run() {
     resources.permission1,
     resources.permission3
   );
-  await finish();
+  //await finish();
 }
 
 async function init() {
